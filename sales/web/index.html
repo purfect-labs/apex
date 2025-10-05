@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX - Stop Juggling 10 Consoles. Master Your Entire Stack.</title>
+    <meta name="description" content="The tool every cloud engineer wishes they had built. Unified AWS, GCP, and Kubernetes management in one beautiful native app.">
+    <link rel="stylesheet" href="assets/css/apex-brand.css">
+    <link rel="stylesheet" href="assets/css/landing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <!-- Navigation -->
+    <nav class="apex-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="apex-logo">
+                    <div class="logo-icon">⚡</div>
+                    <span class="logo-text">APEX</span>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="pricing.html" class="nav-link">Pricing</a>
+                <a href="demo.html" class="nav-link">Demo</a>
+                <a href="#" class="nav-link cta-link">Try Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg">
+            <div class="particles-bg"></div>
+            <div class="grid-bg"></div>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-text">🚀 Now Available for macOS</span>
+                </div>
+                
+                <h1 class="hero-headline">
+                    <span class="headline-part">Stop Juggling</span>
+                    <span class="headline-emphasis">10 Consoles.</span>
+                    <span class="headline-part">Master Your</span>
+                    <span class="headline-accent">Entire Stack.</span>
+                </h1>
+                
+                <p class="hero-subline">
+                    The tool every cloud engineer wishes they had built.<br>
+                    <span class="subline-emphasis">Now someone finally did.</span>
+                </p>
+                
+                <div class="hero-cta">
+                    <button class="cta-primary" onclick="startTrial()">
+                        <span class="cta-icon">⚡</span>
+                        Try APEX Free for 14 Days
+                        <span class="cta-subtitle">No credit card required</span>
+                    </button>
+                    <button class="cta-secondary" onclick="watchDemo()">
+                        <span class="cta-icon">▶</span>
+                        Watch 2-Minute Demo
+                    </button>
+                </div>
+                
+                <div class="hero-proof">
+                    <div class="proof-stats">
+                        <div class="stat">
+                            <span class="stat-number">2,847</span>
+                            <span class="stat-label">Engineers using APEX</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">47%</span>
+                            <span class="stat-label">Less context switching</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">$12K</span>
+                            <span class="stat-label">Avg. cloud cost saved</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <div class="terminal-controls">
+                            <div class="control red"></div>
+                            <div class="control yellow"></div>
+                            <div class="control green"></div>
+                        </div>
+                        <div class="terminal-title">APEX Command Center</div>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="prompt">apex@local</span>
+                            <span class="command" id="typing-demo"></span>
+                            <span class="cursor">|</span>
+                        </div>
+                        <div class="terminal-output" id="terminal-output"></div>
+                    </div>
+                </div>
+                
+                <div class="feature-preview">
+                    <div class="preview-tabs">
+                        <div class="tab active" data-tab="aws">AWS</div>
+                        <div class="tab" data-tab="gcp">GCP</div>
+                        <div class="tab" data-tab="k8s">K8s</div>
+                    </div>
+                    <div class="preview-content">
+                        <div class="resource-card">
+                            <div class="resource-status online"></div>
+                            <div class="resource-info">
+                                <div class="resource-name">production-cluster</div>
+                                <div class="resource-type">EKS Cluster • us-west-2</div>
+                            </div>
+                            <div class="resource-actions">
+                                <button class="action-btn">Scale</button>
+                                <button class="action-btn">Logs</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Agitation Section -->
+    <section class="problem-section">
+        <div class="container">
+            <div class="problem-grid">
+                <div class="problem-side">
+                    <h2 class="section-title">
+                        <span class="title-accent">The Hell</span> You Deal With Daily
+                    </h2>
+                    <div class="problem-list">
+                        <div class="problem-item">
+                            <div class="problem-icon">😤</div>
+                            <div class="problem-text">
+                                <strong>47 browser tabs</strong> just to check if your app is running
+                            </div>
+                        </div>
+                        <div class="problem-item">
+                            <div class="problem-icon">🤯</div>
+                            <div class="problem-text">
+                                <strong>Remember 500+ CLI commands</strong> or copy-paste from Stack Overflow
+                            </div>
+                        </div>
+                        <div class="problem-item">
+                            <div class="problem-icon">⏰</div>
+                            <div class="problem-text">
+                                <strong>2+ hours daily</strong> lost to context switching between tools
+                            </div>
+                        </div>
+                        <div class="problem-item">
+                            <div class="problem-icon">💸</div>
+                            <div class="problem-text">
+                                <strong>Cloud waste</strong> because you can't see everything at once
+                            </div>
+                        </div>
+                        <div class="problem-item">
+                            <div class="problem-icon">🔥</div>
+                            <div class="problem-text">
+                                <strong>Production fires</strong> while you're still logging into AWS
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="solution-side">
+                    <h2 class="section-title">
+                        <span class="title-accent">The Paradise</span> APEX Creates
+                    </h2>
+                    <div class="solution-list">
+                        <div class="solution-item">
+                            <div class="solution-icon">⚡</div>
+                            <div class="solution-text">
+                                <strong>One beautiful interface</strong> for AWS, GCP, and Kubernetes
+                            </div>
+                        </div>
+                        <div class="solution-item">
+                            <div class="solution-icon">🧠</div>
+                            <div class="solution-text">
+                                <strong>Point-and-click</strong> instead of memorizing commands
+                            </div>
+                        </div>
+                        <div class="solution-item">
+                            <div class="solution-icon">🚀</div>
+                            <div class="solution-text">
+                                <strong>Native macOS speed</strong> that doesn't make you want to throw your laptop
+                            </div>
+                        </div>
+                        <div class="solution-item">
+                            <div class="solution-icon">💰</div>
+                            <div class="solution-text">
+                                <strong>Spot cloud waste</strong> before it bankrupts your startup
+                            </div>
+                        </div>
+                        <div class="solution-item">
+                            <div class="solution-icon">🎯</div>
+                            <div class="solution-text">
+                                <strong>Fix production issues</strong> in seconds, not minutes
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="social-proof-section">
+        <div class="container">
+            <h2 class="section-title center">
+                Join <span class="title-accent">2,847 Engineers</span> Who Escaped Console Hell
+            </h2>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "Holy shit. This is what I've been waiting for my entire career. APEX cut our deploy time from 45 minutes to 3 minutes."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SC</div>
+                        <div class="author-info">
+                            <div class="author-name">Sarah Chen</div>
+                            <div class="author-title">Senior DevOps • TechCorp</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                </div>
+                
+                <div class="testimonial-card featured">
+                    <div class="testimonial-content">
+                        "I was spending $15K/month on AWS without realizing it. APEX showed me exactly where the money was going. Saved me $180K this year."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MR</div>
+                        <div class="author-info">
+                            <div class="author-name">Mike Rodriguez</div>
+                            <div class="author-title">CTO • StartupXYZ</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        "Best $99 I ever spent. My team thinks I'm a wizard now. Don't tell them it's just APEX doing the heavy lifting."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AK</div>
+                        <div class="author-info">
+                            <div class="author-name">Alex Kim</div>
+                            <div class="author-title">Full Stack Developer</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Preview -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <h2 class="section-title center">
+                Why Engineers Are <span class="title-accent">Obsessed</span> With APEX
+            </h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3 class="feature-title">Multi-Cloud Mastery</h3>
+                    <p class="feature-desc">AWS, GCP, and Kubernetes in one interface. Stop juggling browser tabs like a circus performer.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Native macOS Speed</h3>
+                    <p class="feature-desc">Built with PyWebView, not Electron bloat. Faster than your web console, prettier than your terminal.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Team-Centric View</h3>
+                    <p class="feature-desc">See only YOUR team's resources. No more hunting through 500 microservices you don't own.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-desc">SSO, SAML, and all the acronyms your security team demands. We got you covered.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Cost Intelligence</h3>
+                    <p class="feature-desc">Spot cloud waste before your CEO spots your AWS bill. Real-time cost tracking that actually works.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">One-Click Deploy</h3>
+                    <p class="feature-desc">Deploy to dev, stage, or prod without memorizing 50 kubectl commands. Your muscle memory will thank you.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Teaser -->
+    <section class="pricing-teaser-section">
+        <div class="container">
+            <div class="pricing-teaser">
+                <h2 class="section-title center">
+                    <span class="title-accent">$99 Forever</span> or <span class="title-accent">$15/Month</span>
+                </h2>
+                <p class="pricing-desc">
+                    Your choice. Same powerful tool. Same time savings. Same cloud cost optimization.<br>
+                    <strong>No subscription trap bullshit.</strong>
+                </p>
+                
+                <div class="pricing-cta">
+                    <button class="cta-primary large" onclick="startTrial()">
+                        Start 14-Day Free Trial
+                        <span class="cta-subtitle">No credit card • Full features</span>
+                    </button>
+                    <a href="pricing.html" class="link-secondary">See detailed pricing →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta-section">
+        <div class="container">
+            <div class="final-cta">
+                <h2 class="cta-headline">
+                    Stop Wasting 2+ Hours Daily on Console Hell
+                </h2>
+                <p class="cta-desc">
+                    Join 2,847 engineers who already escaped. Your sanity is worth more than $99.
+                </p>
+                
+                <div class="download-options">
+                    <button class="download-btn primary" onclick="downloadDMG()">
+                        <div class="download-info">
+                            <div class="download-title">📦 Download for macOS</div>
+                            <div class="download-subtitle">Native PyWebView • 45MB • Instant install</div>
+                        </div>
+                    </button>
+                    
+                    <button class="download-btn secondary" onclick="downloadElectron()">
+                        <div class="download-info">
+                            <div class="download-title">⚡ Download Electron Version</div>
+                            <div class="download-subtitle">Cross-platform • 120MB • Full features</div>
+                        </div>
+                    </button>
+                </div>
+                
+                <div class="guarantee">
+                    <div class="guarantee-badge">💰 Money Back Guarantee</div>
+                    <p>Not satisfied? Get your money back, no questions asked. But you won't want to.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="apex-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="apex-logo">
+                        <div class="logo-icon">⚡</div>
+                        <span class="logo-text">APEX</span>
+                    </div>
+                    <p>The tool every cloud engineer wishes they had built.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Product</h4>
+                        <a href="features.html">Features</a>
+                        <a href="pricing.html">Pricing</a>
+                        <a href="demo.html">Demo</a>
+                        <a href="download.html">Download</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Support</h4>
+                        <a href="#">Documentation</a>
+                        <a href="#">Help Center</a>
+                        <a href="#">Contact</a>
+                        <a href="#">Status</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Company</h4>
+                        <a href="#">About</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Careers</a>
+                        <a href="#">Privacy</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 APEX. Built by engineers, for engineers.</p>
+                <p>Stop juggling consoles. Master your stack.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/animations.js"></script>
+    <script src="assets/js/apex-demo.js"></script>
+</body>
+</html>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX Pricing - The Cloud Operations Command Center</title>
+    <link rel="stylesheet" href="assets/css/brand.css">
+    <link rel="stylesheet" href="assets/css/landing.css">
+    <link rel="stylesheet" href="assets/css/pricing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">APEX</span>
+                <span class="logo-subtitle">Command Center</span>
+            </div>
+            
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="features.html" class="nav-link">Features</a>
+                <a href="pricing.html" class="nav-link active">Pricing</a>
+                <a href="demo.html" class="nav-link">Demo</a>
+                <a href="#" class="nav-link">Docs</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="cta-secondary" onclick="startTrial()">Free Trial</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pricing-hero">
+        <div class="container">
+            <div class="pricing-hero-content">
+                <div class="hero-badge">
+                    💳 Transparent Pricing
+                </div>
+                <h1 class="hero-title">
+                    Choose Your <span class="text-gradient">Command Level</span>
+                </h1>
+                <p class="hero-subtitle">
+                    From individual developers to enterprise teams. Scale your cloud operations with confidence.
+                </p>
+                
+                <!-- Billing Toggle -->
+                <div class="billing-toggle">
+                    <span class="toggle-label">Monthly</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="annual-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Annual <span class="discount-badge">Save 20%</span></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Tiers -->
+    <section class="pricing-tiers">
+        <div class="container">
+            <div class="tiers-grid">
+                
+                <!-- Individual Tier -->
+                <div class="pricing-card tier-individual">
+                    <div class="tier-header">
+                        <div class="tier-icon">👨‍💻</div>
+                        <h3 class="tier-name">Individual</h3>
+                        <p class="tier-description">Perfect for solo developers and freelancers</p>
+                    </div>
+                    
+                    <div class="tier-pricing">
+                        <div class="price-container">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount" data-monthly="15" data-annual="12">15</span>
+                            <span class="price-period">/month</span>
+                        </div>
+                        <div class="price-annual">
+                            <span class="annual-note">$144/year when billed annually</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tier-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Up to 3 cloud accounts</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Single environment (dev/staging)</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Basic monitoring & alerting</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Terminal command history</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Community support</span>
+                        </div>
+                        <div class="feature-item disabled">
+                            <span class="feature-icon">❌</span>
+                            <span>Team collaboration</span>
+                        </div>
+                        <div class="feature-item disabled">
+                            <span class="feature-icon">❌</span>
+                            <span>Advanced security features</span>
+                        </div>
+                    </div>
+                    
+                    <button class="tier-cta cta-secondary" onclick="selectPlan('individual')">
+                        Start Free Trial
+                    </button>
+                </div>
+
+                <!-- Team Tier (Most Popular) -->
+                <div class="pricing-card tier-team popular">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="tier-header">
+                        <div class="tier-icon">👥</div>
+                        <h3 class="tier-name">Team</h3>
+                        <p class="tier-description">Built for development teams and growing companies</p>
+                    </div>
+                    
+                    <div class="tier-pricing">
+                        <div class="price-container">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount" data-monthly="45" data-annual="36">45</span>
+                            <span class="price-period">/month</span>
+                        </div>
+                        <div class="price-annual">
+                            <span class="annual-note">$432/year when billed annually</span>
+                        </div>
+                        <div class="per-user-note">Up to 5 users included</div>
+                    </div>
+                    
+                    <div class="tier-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Everything in Individual</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Unlimited cloud accounts</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Multi-environment support</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Team collaboration & sharing</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Advanced monitoring & analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Cross-team visibility</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Code ownership tracking</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Deployment coherence checks</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Priority email support</span>
+                        </div>
+                    </div>
+                    
+                    <button class="tier-cta cta-primary" onclick="selectPlan('team')">
+                        Start Free Trial
+                    </button>
+                </div>
+
+                <!-- Enterprise Tier -->
+                <div class="pricing-card tier-enterprise">
+                    <div class="tier-header">
+                        <div class="tier-icon">🏢</div>
+                        <h3 class="tier-name">Enterprise</h3>
+                        <p class="tier-description">Advanced features for large organizations</p>
+                    </div>
+                    
+                    <div class="tier-pricing">
+                        <div class="price-container">
+                            <span class="price-currency">$</span>
+                            <span class="price-amount custom">Custom</span>
+                        </div>
+                        <div class="price-annual">
+                            <span class="annual-note">Contact for volume pricing</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tier-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Everything in Team</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Unlimited users</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>SSO & advanced security</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Custom integrations</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Dedicated account manager</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>SLA & priority support</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>On-premises deployment</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✅</span>
+                            <span>Compliance & audit features</span>
+                        </div>
+                    </div>
+                    
+                    <button class="tier-cta cta-secondary" onclick="contactSales()">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Calculator -->
+    <section class="pricing-calculator">
+        <div class="container">
+            <div class="calculator-header">
+                <h2 class="section-title">💰 Pricing Calculator</h2>
+                <p class="section-subtitle">
+                    Estimate your costs based on team size and usage
+                </p>
+            </div>
+            
+            <div class="calculator-content">
+                <div class="calculator-inputs">
+                    <div class="input-group">
+                        <label for="team-size">Team Size</label>
+                        <div class="input-with-slider">
+                            <input type="range" id="team-size" min="1" max="100" value="5" class="slider">
+                            <span class="slider-value" id="team-size-value">5</span>
+                            <span class="slider-unit">users</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="cloud-accounts">Cloud Accounts</label>
+                        <div class="input-with-slider">
+                            <input type="range" id="cloud-accounts" min="1" max="50" value="3" class="slider">
+                            <span class="slider-value" id="cloud-accounts-value">3</span>
+                            <span class="slider-unit">accounts</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="environments">Environments</label>
+                        <div class="input-with-slider">
+                            <input type="range" id="environments" min="1" max="10" value="3" class="slider">
+                            <span class="slider-value" id="environments-value">3</span>
+                            <span class="slider-unit">envs</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calculator-result">
+                    <div class="result-card">
+                        <div class="result-tier">
+                            <span class="tier-icon">👥</span>
+                            <span class="tier-name" id="recommended-tier">Team</span>
+                        </div>
+                        
+                        <div class="result-pricing">
+                            <div class="monthly-price">
+                                <span class="price-label">Monthly</span>
+                                <span class="price-amount" id="monthly-total">$45</span>
+                            </div>
+                            <div class="annual-price">
+                                <span class="price-label">Annual (20% off)</span>
+                                <span class="price-amount" id="annual-total">$432</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-breakdown">
+                            <div class="breakdown-item">
+                                <span>Base plan</span>
+                                <span id="base-cost">$45/month</span>
+                            </div>
+                            <div class="breakdown-item" id="additional-users-row" style="display: none;">
+                                <span>Additional users</span>
+                                <span id="additional-users-cost">$0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span>Total per user</span>
+                                <span id="per-user-cost">$9/month</span>
+                            </div>
+                        </div>
+                        
+                        <button class="result-cta cta-primary" id="calculator-cta" onclick="selectCalculatedPlan()">
+                            Start Free Trial
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Comparison -->
+    <section class="feature-comparison">
+        <div class="container">
+            <div class="comparison-header">
+                <h2 class="section-title">🔍 Feature Comparison</h2>
+                <p class="section-subtitle">
+                    Detailed breakdown of what's included in each plan
+                </p>
+            </div>
+            
+            <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="feature-col">Features</th>
+                            <th class="tier-col">Individual</th>
+                            <th class="tier-col popular">Team</th>
+                            <th class="tier-col">Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-header">
+                            <td colspan="4">Core Features</td>
+                        </tr>
+                        <tr>
+                            <td>Cloud Account Support</td>
+                            <td>Up to 3</td>
+                            <td class="highlight">Unlimited</td>
+                            <td class="highlight">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>Environment Management</td>
+                            <td>Single env</td>
+                            <td class="highlight">Multi-env</td>
+                            <td class="highlight">Multi-env</td>
+                        </tr>
+                        <tr>
+                            <td>Terminal Interface</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Command History</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="4">Monitoring & Analytics</td>
+                        </tr>
+                        <tr>
+                            <td>Basic Monitoring</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Advanced Analytics</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Cross-team Visibility</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Custom Dashboards</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="4">Collaboration</td>
+                        </tr>
+                        <tr>
+                            <td>Team Collaboration</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Code Ownership Tracking</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Deployment Coherence</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Role-based Access</td>
+                            <td>—</td>
+                            <td>Basic</td>
+                            <td class="highlight">Advanced</td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="4">Security & Compliance</td>
+                        </tr>
+                        <tr>
+                            <td>SSO Integration</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Audit Logging</td>
+                            <td>Basic</td>
+                            <td class="highlight">Extended</td>
+                            <td class="highlight">Full</td>
+                        </tr>
+                        <tr>
+                            <td>Compliance Reports</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="4">Support</td>
+                        </tr>
+                        <tr>
+                            <td>Community Support</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Priority Email</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Dedicated Support</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>SLA Guarantee</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="highlight">99.9%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="pricing-faq">
+        <div class="container">
+            <div class="faq-header">
+                <h2 class="section-title">❓ Frequently Asked Questions</h2>
+                <p class="section-subtitle">
+                    Everything you need to know about APEX pricing
+                </p>
+            </div>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>How does the free trial work?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Your 14-day free trial includes full access to all Team plan features. No credit card required. After the trial, you can choose to upgrade or downgrade to any plan.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Can I change my plan at any time?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! You can upgrade or downgrade your plan at any time. Changes are prorated automatically, and you'll only pay the difference for the remainder of your billing cycle.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>What cloud providers do you support?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>APEX supports AWS, Google Cloud Platform, Microsoft Azure, and Kubernetes. We're constantly adding support for new cloud providers and services.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Do you offer volume discounts?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! Enterprise customers with large teams get custom pricing with significant volume discounts. Contact our sales team to discuss your specific needs.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Is my data secure?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely. We use end-to-end encryption, SOC 2 compliant infrastructure, and follow strict security practices. Your cloud credentials are never stored on our servers.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Can I run APEX on-premises?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! Enterprise customers can deploy APEX on their own infrastructure for maximum security and compliance. This includes air-gapped environments.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="pricing-cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">
+                    Ready to Transform Your Cloud Operations?
+                </h2>
+                <p class="cta-subtitle">
+                    Join thousands of developers who've already made the switch to APEX
+                </p>
+                
+                <div class="cta-buttons">
+                    <button class="cta-primary large" onclick="startTrial()">
+                        <span class="cta-icon">🚀</span>
+                        Start Free Trial
+                        <span class="cta-subtitle">No credit card required</span>
+                    </button>
+                    
+                    <button class="cta-secondary large" onclick="contactSales()">
+                        <span class="cta-icon">💬</span>
+                        Talk to Sales
+                        <span class="cta-subtitle">Get a custom demo</span>
+                    </button>
+                </div>
+                
+                <div class="cta-trust">
+                    <div class="trust-item">
+                        <span class="trust-icon">✅</span>
+                        <span>14-day free trial</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">💳</span>
+                        <span>No credit card required</span>
+                    </div>
+                    <div class="trust-item">
+                        <span class="trust-icon">🔒</span>
+                        <span>SOC 2 compliant</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <span class="logo-text">APEX</span>
+                        <span class="logo-subtitle">Command Center</span>
+                    </div>
+                    <p class="footer-description">
+                        The cloud operations command center every engineer wishes they had built.
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Product</h4>
+                        <a href="features.html">Features</a>
+                        <a href="pricing.html">Pricing</a>
+                        <a href="demo.html">Demo</a>
+                        <a href="#changelog">Changelog</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Company</h4>
+                        <a href="#about">About</a>
+                        <a href="#careers">Careers</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#blog">Blog</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Resources</h4>
+                        <a href="#docs">Documentation</a>
+                        <a href="#api">API Reference</a>
+                        <a href="#support">Support</a>
+                        <a href="#community">Community</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2024 APEX Command Center. All rights reserved.</p>
+                </div>
+                <div class="footer-legal">
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="#terms">Terms of Service</a>
+                    <a href="#security">Security</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/apex-demo.js"></script>
+    <script src="assets/js/pricing.js"></script>
+    <script src="assets/js/animations.js"></script>
+</body>
+</html>

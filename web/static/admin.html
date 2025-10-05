@@ -1950,29 +1950,69 @@
         // AWS Provider Testing Functions
         async function testAWSAuth(environment) {
             addLogEntry(`Testing AWS authentication for ${environment} environment`, 'info');
+            const statusElement = document.getElementById(`aws-${environment}-status`);
+            statusElement.textContent = '🔄 CHECKING...';
+            statusElement.style.color = 'var(--warning-color)';
+            
             try {
-                const response = await fetch('/api/status');
-                const data = await response.json();
-                const statusElement = document.getElementById(`aws-${environment}-status`);
+                // First, check current authentication status
+                const statusResponse = await fetch('/api/status');
+                const statusData = await statusResponse.json();
                 
-                if (response.ok && data.aws && data.aws.authentication && data.aws.authentication.profiles) {
-                    const profile = data.aws.authentication.profiles[environment];
+                if (statusResponse.ok && statusData.aws && statusData.aws.authentication && statusData.aws.authentication.profiles) {
+                    const profile = statusData.aws.authentication.profiles[environment];
                     if (profile && profile.authenticated) {
                         statusElement.textContent = '✅ AUTHENTICATED';
                         statusElement.style.color = 'var(--success-color)';
-                        addLogEntry(`AWS ${environment} authentication successful - Account: ${profile.account}`, 'success');
-                    } else {
-                        statusElement.textContent = '❌ FAILED';
-                        statusElement.style.color = 'var(--error-color)';
-                        addLogEntry(`AWS ${environment} authentication failed`, 'error');
+                        addLogEntry(`AWS ${environment} already authenticated - Account: ${profile.account}`, 'success');
+                        return;
                     }
-                } else {
-                    statusElement.textContent = '❌ ERROR';
-                    statusElement.style.color = 'var(--error-color)';
-                    addLogEntry(`AWS ${environment} status check failed`, 'error');
                 }
+                
+                // Not authenticated, trigger authentication
+                addLogEntry(`AWS ${environment} not authenticated, triggering authentication...`, 'info');
+                statusElement.textContent = '🔐 AUTHENTICATING...';
+                
+                const authResponse = await fetch('/api/aws/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ env: environment })
+                });
+                
+                const authData = await authResponse.json();
+                
+                if (authResponse.ok && authData.success) {
+                    addLogEntry(`AWS ${environment} authentication started: ${authData.message}`, 'success');
+                    
+                    // Wait a moment and check status again
+                    setTimeout(async () => {
+                        try {
+                            const finalResponse = await fetch('/api/aws/identity?env=' + environment);
+                            const finalData = await finalResponse.json();
+                            
+                            if (finalResponse.ok && finalData.success) {
+                                statusElement.textContent = '✅ AUTHENTICATED';
+                                statusElement.style.color = 'var(--success-color)';
+                                addLogEntry(`AWS ${environment} authentication successful!`, 'success');
+                            } else {
+                                statusElement.textContent = '❌ FAILED';
+                                statusElement.style.color = 'var(--error-color)';
+                                addLogEntry(`AWS ${environment} authentication failed: ${finalData.error || 'Unknown error'}`, 'error');
+                            }
+                        } catch (error) {
+                            statusElement.textContent = '❌ ERROR';
+                            statusElement.style.color = 'var(--error-color)';
+                            addLogEntry(`AWS ${environment} verification error: ${error.message}`, 'error');
+                        }
+                    }, 3000); // Wait 3 seconds for auth to complete
+                    
+                } else {
+                    statusElement.textContent = '❌ FAILED';
+                    statusElement.style.color = 'var(--error-color)';
+                    addLogEntry(`AWS ${environment} authentication failed: ${authData.error || authData.message}`, 'error');
+                }
+                
             } catch (error) {
-                const statusElement = document.getElementById(`aws-${environment}-status`);
                 statusElement.textContent = '❌ ERROR';
                 statusElement.style.color = 'var(--error-color)';
                 addLogEntry(`AWS ${environment} test error: ${error.message}`, 'error');

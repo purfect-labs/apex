@@ -24,13 +24,9 @@ test.describe('AWS Provider Shadow Tests', () => {
             const authStatus = await adminPage.testAWSAuthentication('dev');
             
             // Validate authentication status
-            expect(authStatus).toMatch(/AUTHENTICATED|FAILED|ERROR/);
-            
-            if (authStatus.includes('AUTHENTICATED')) {
-                console.log('✅ AWS DEV authentication validated');
-            } else {
-                console.log(`⚠️  AWS DEV authentication issue: ${authStatus}`);
-            }
+            // FAIL the test if authentication is not successful
+            expect(authStatus).toMatch(/AUTHENTICATED/);
+            console.log('✅ AWS DEV authentication validated');
         });
 
         test('should validate AWS STAGE environment authentication', async ({ page }) => {
@@ -38,13 +34,9 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             const authStatus = await adminPage.testAWSAuthentication('stage');
             
-            expect(authStatus).toMatch(/AUTHENTICATED|FAILED|ERROR/);
-            
-            if (authStatus.includes('AUTHENTICATED')) {
-                console.log('✅ AWS STAGE authentication validated');
-            } else {
-                console.log(`⚠️  AWS STAGE authentication issue: ${authStatus}`);
-            }
+            // FAIL the test if authentication is not successful
+            expect(authStatus).toMatch(/AUTHENTICATED/);
+            console.log('✅ AWS STAGE authentication validated');
         });
 
         test('should validate AWS PROD environment authentication', async ({ page }) => {
@@ -52,13 +44,9 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             const authStatus = await adminPage.testAWSAuthentication('prod');
             
-            expect(authStatus).toMatch(/AUTHENTICATED|FAILED|ERROR/);
-            
-            if (authStatus.includes('AUTHENTICATED')) {
-                console.log('✅ AWS PROD authentication validated');
-            } else {
-                console.log(`⚠️  AWS PROD authentication issue: ${authStatus}`);
-            }
+            // FAIL the test if authentication is not successful
+            expect(authStatus).toMatch(/AUTHENTICATED/);
+            console.log('✅ AWS PROD authentication validated');
         });
     });
 
