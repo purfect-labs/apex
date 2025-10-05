@@ -1,0 +1,836 @@
+<!-- Interactive Dashboard Component - Bottom Panel -->
+<div class="dashboard-container" id="dashboard-container">
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <span class="dashboard-icon">📊</span>
+            <span>Interactive Dashboard</span>
+            <span class="context-indicator" id="context-indicator">Multi-Cloud Context</span>
+        </div>
+        <div class="dashboard-controls">
+            <select id="provider-context" class="provider-selector" onchange="switchProviderContext(this.value)">
+                <option value="overview">📈 Overview</option>
+                <option value="k8s">⚓ Kubernetes</option>
+                <option value="aws">☁️ AWS</option>
+                <option value="gcp">🌐 GCP</option>
+                <option value="ci-cd">🔄 CI/CD</option>
+            </select>
+            <button class="dashboard-btn" onclick="refreshDashboard()" title="Refresh data">
+                🔄 Refresh
+            </button>
+            <button class="dashboard-btn" onclick="toggleDashboard()" title="Minimize/Expand" id="dashboard-toggle">
+                ▼ Minimize
+            </button>
+        </div>
+    </div>
+    
+    <div class="dashboard-content" id="dashboard-content">
+        <!-- Overview Dashboard -->
+        <div class="dashboard-view active" id="view-overview">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">🔥</div>
+                    <div class="metric-value" id="total-resources">127</div>
+                    <div class="metric-label">Total Resources</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-value" id="active-pods">43</div>
+                    <div class="metric-label">Active Pods</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">☁️</div>
+                    <div class="metric-value" id="cloud-services">8</div>
+                    <div class="metric-label">Cloud Services</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🚀</div>
+                    <div class="metric-value" id="deployments">12</div>
+                    <div class="metric-label">Deployments</div>
+                </div>
+            </div>
+            
+            <div class="dashboard-widgets">
+                <div class="widget">
+                    <div class="widget-header">🌍 Multi-Cloud Status</div>
+                    <div class="cloud-status-grid">
+                        <div class="cloud-item">
+                            <span class="cloud-name">AWS</span>
+                            <span class="cloud-status healthy">●</span>
+                            <span class="cloud-detail">3 regions</span>
+                        </div>
+                        <div class="cloud-item">
+                            <span class="cloud-name">GCP</span>
+                            <span class="cloud-status healthy">●</span>
+                            <span class="cloud-detail">2 projects</span>
+                        </div>
+                        <div class="cloud-item">
+                            <span class="cloud-name">K8s</span>
+                            <span class="cloud-status warning">●</span>
+                            <span class="cloud-detail">5 clusters</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <div class="widget-header">📈 Resource Trends</div>
+                    <div class="trend-chart" id="resource-trend-chart">
+                        <canvas id="trends-canvas" width="400" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kubernetes Dashboard -->
+        <div class="dashboard-view" id="view-k8s">
+            <div class="k8s-cluster-tabs">
+                <button class="cluster-tab active" onclick="switchCluster('dev')">DEV</button>
+                <button class="cluster-tab" onclick="switchCluster('staging')">STAGING</button>
+                <button class="cluster-tab" onclick="switchCluster('prod')">PROD</button>
+            </div>
+            
+            <div class="k8s-dashboard-grid">
+                <div class="k8s-widget">
+                    <div class="widget-header">⚓ Cluster Health</div>
+                    <div class="health-indicators">
+                        <div class="health-item">
+                            <span class="health-label">Nodes</span>
+                            <span class="health-value healthy">3/3</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-label">Pods</span>
+                            <span class="health-value healthy">24/30</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-label">Storage</span>
+                            <span class="health-value warning">67%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="k8s-widget">
+                    <div class="widget-header">📆 Recent Events</div>
+                    <div class="events-list">
+                        <div class="event-item">
+                            <span class="event-time">2m ago</span>
+                            <span class="event-type info">Created</span>
+                            <span class="event-desc">Pod nginx-deployment-xyz</span>
+                        </div>
+                        <div class="event-item">
+                            <span class="event-time">5m ago</span>
+                            <span class="event-type warning">Failed</span>
+                            <span class="event-desc">Pod redis-cache-abc</span>
+                        </div>
+                        <div class="event-item">
+                            <span class="event-time">8m ago</span>
+                            <span class="event-type success">Started</span>
+                            <span class="event-desc">Service loadbalancer</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="k8s-widget full-width">
+                    <div class="widget-header">📊 Resource Usage</div>
+                    <div class="resource-bars">
+                        <div class="resource-bar">
+                            <span class="resource-name">CPU</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <span class="resource-value">65%</span>
+                        </div>
+                        <div class="resource-bar">
+                            <span class="resource-name">Memory</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 78%"></div>
+                            </div>
+                            <span class="resource-value">78%</span>
+                        </div>
+                        <div class="resource-bar">
+                            <span class="resource-name">Disk</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%"></div>
+                            </div>
+                            <span class="resource-value">45%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AWS Dashboard -->
+        <div class="dashboard-view" id="view-aws">
+            <div class="aws-service-grid">
+                <div class="service-card">
+                    <div class="service-icon">🚀</div>
+                    <div class="service-name">EC2</div>
+                    <div class="service-count">12 instances</div>
+                    <div class="service-status healthy">● Running</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💾</div>
+                    <div class="service-name">RDS</div>
+                    <div class="service-count">3 databases</div>
+                    <div class="service-status healthy">● Available</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🪣</div>
+                    <div class="service-name">S3</div>
+                    <div class="service-count">8 buckets</div>
+                    <div class="service-status warning">● 67% full</div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">⚙️</div>
+                    <div class="service-name">ECS</div>
+                    <div class="service-count">5 services</div>
+                    <div class="service-status healthy">● Active</div>
+                </div>
+            </div>
+            
+            <div class="aws-cost-widget">
+                <div class="widget-header">💰 Cost Overview</div>
+                <div class="cost-breakdown">
+                    <div class="cost-item">
+                        <span class="cost-service">EC2</span>
+                        <span class="cost-amount">$245.67</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-service">RDS</span>
+                        <span class="cost-amount">$89.23</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-service">S3</span>
+                        <span class="cost-amount">$12.45</span>
+                    </div>
+                    <div class="cost-total">
+                        <span class="cost-service">Total</span>
+                        <span class="cost-amount">$347.35</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GCP Dashboard -->
+        <div class="dashboard-view" id="view-gcp">
+            <div class="gcp-projects">
+                <div class="project-tab active" onclick="switchGCPProject('dev')">kenect-dev</div>
+                <div class="project-tab" onclick="switchGCPProject('stage')">kenect-stage</div>
+                <div class="project-tab" onclick="switchGCPProject('prod')">kenect-prod</div>
+            </div>
+            
+            <div class="gcp-services-grid">
+                <div class="gcp-widget">
+                    <div class="widget-header">⚓ GKE Clusters</div>
+                    <div class="gke-clusters">
+                        <div class="cluster-item">
+                            <span class="cluster-name">dev-cluster</span>
+                            <span class="cluster-nodes">3 nodes</span>
+                            <span class="cluster-status healthy">●</span>
+                        </div>
+                        <div class="cluster-item">
+                            <span class="cluster-name">stage-cluster</span>
+                            <span class="cluster-nodes">2 nodes</span>
+                            <span class="cluster-status healthy">●</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="gcp-widget">
+                    <div class="widget-header">☁️ Cloud Run</div>
+                    <div class="cloud-run-services">
+                        <div class="service-item">
+                            <span class="service-name">api-service</span>
+                            <span class="service-requests">1.2k req/min</span>
+                        </div>
+                        <div class="service-item">
+                            <span class="service-name">worker-service</span>
+                            <span class="service-requests">340 req/min</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="gcp-widget">
+                    <div class="widget-header">📊 Cloud Functions</div>
+                    <div class="functions-list">
+                        <div class="function-item">
+                            <span class="function-name">process-webhook</span>
+                            <span class="function-invocations">45 today</span>
+                        </div>
+                        <div class="function-item">
+                            <span class="function-name">send-notifications</span>
+                            <span class="function-invocations">123 today</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CI/CD Dashboard -->
+        <div class="dashboard-view" id="view-ci-cd">
+            <div class="pipeline-overview">
+                <div class="pipeline-widget">
+                    <div class="widget-header">🔄 Active Pipelines</div>
+                    <div class="pipeline-list">
+                        <div class="pipeline-item">
+                            <span class="pipeline-name">main-deployment</span>
+                            <span class="pipeline-status running">● Building</span>
+                            <span class="pipeline-time">2m 30s</span>
+                        </div>
+                        <div class="pipeline-item">
+                            <span class="pipeline-name">feature-auth</span>
+                            <span class="pipeline-status success">● Passed</span>
+                            <span class="pipeline-time">5m ago</span>
+                        </div>
+                        <div class="pipeline-item">
+                            <span class="pipeline-name">hotfix-security</span>
+                            <span class="pipeline-status failed">● Failed</span>
+                            <span class="pipeline-time">10m ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pipeline-widget">
+                    <div class="widget-header">📈 Deployment Stats</div>
+                    <div class="deployment-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">23</span>
+                            <span class="stat-label">Today</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">156</span>
+                            <span class="stat-label">This Week</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">94%</span>
+                            <span class="stat-label">Success Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="console-panels">
+            <!-- JSON Panel -->
+            <div class="console-panel active" id="panel-json">
+                <div class="json-viewer">
+                    <pre class="json-content" id="json-display">
+{
+    "message": "Welcome to APEX Data Console",
+    "status": "ready",
+    "timestamp": "2024-12-19T10:00:00Z",
+    "features": [
+        "Real-time data viewing",
+        "JSON formatting",
+        "Export capabilities"
+    ]
+}</pre>
+                </div>
+            </div>
+            
+            <!-- Table Panel -->
+            <div class="console-panel" id="panel-table">
+                <div class="table-viewer">
+                    <table class="data-table" id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Type</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr class="placeholder">
+                                <td colspan="4" class="no-data">No data available - execute commands to see results</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Logs Panel -->
+            <div class="console-panel" id="panel-logs">
+                <div class="logs-viewer">
+                    <div class="log-filters">
+                        <select class="log-level-filter" id="log-level-filter" onchange="filterLogs()">
+                            <option value="all">All Levels</option>
+                            <option value="error">Errors</option>
+                            <option value="warning">Warnings</option>
+                            <option value="info">Info</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                        <input type="text" class="log-search" id="log-search" placeholder="Search logs..." onkeyup="filterLogs()">
+                    </div>
+                    <div class="log-entries" id="log-entries">
+                        <div class="log-entry info">
+                            <span class="log-timestamp">10:00:00</span>
+                            <span class="log-level info">INFO</span>
+                            <span class="log-message">APEX Data Console initialized</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis panel removed - focus on real K8s data -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Data Console functionality
+let consoleData = [];
+let logEntries = [];
+let isConsoleMinimized = false;
+
+// Initialize console
+document.addEventListener('DOMContentLoaded', function() {
+    updateConsoleCount();
+    
+    // Listen for terminal output to populate console
+    document.addEventListener('terminalOutput', function(event) {
+        addConsoleData(event.detail);
+    });
+    
+    // Mock some initial data
+    setTimeout(() => {
+        addLogEntry('info', 'Data console ready for input');
+    }, 1000);
+});
+
+// Console management functions
+function toggleConsole() {
+    const console = document.getElementById('data-console');
+    const content = document.getElementById('console-content');
+    const toggle = document.getElementById('console-toggle');
+    
+    if (isConsoleMinimized) {
+        content.style.display = 'block';
+        toggle.textContent = '▼ Minimize';
+        console.classList.remove('minimized');
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▲ Expand';
+        console.classList.add('minimized');
+    }
+    
+    isConsoleMinimized = !isConsoleMinimized;
+}
+
+function clearConsole() {
+    consoleData = [];
+    logEntries = [];
+    
+    // Clear JSON display
+    document.getElementById('json-display').textContent = '{}';
+    
+    // Clear table
+    document.getElementById('table-body').innerHTML = `
+        <tr class="placeholder">
+            <td colspan="4" class="no-data">No data available - execute commands to see results</td>
+        </tr>
+    `;
+    
+    // Clear logs
+    document.getElementById('log-entries').innerHTML = '';
+    
+    // Update count
+    updateConsoleCount();
+    
+    addLogEntry('info', 'Console cleared');
+}
+
+function exportConsoleData() {
+    const exportData = {
+        timestamp: new Date().toISOString(),
+        data: consoleData,
+        logs: logEntries,
+        metadata: {
+            total_items: consoleData.length,
+            total_logs: logEntries.length,
+            export_version: '1.0'
+        }
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `apex-console-export-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    addLogEntry('info', 'Console data exported');
+}
+
+// Tab switching
+function switchConsoleTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.console-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Update panels
+    document.querySelectorAll('.console-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    document.getElementById(`panel-${tabName}`).classList.add('active');
+    
+    addLogEntry('debug', `Switched to ${tabName} view`);
+}
+
+// Data management
+function addConsoleData(data) {
+    consoleData.push({
+        timestamp: new Date().toISOString(),
+        data: data,
+        id: Date.now() + Math.random()
+    });
+    
+    updateJSONDisplay();
+    updateTableDisplay();
+    updateConsoleCount();
+    
+    {% if has_feature('data_analysis') %}
+    updateAnalytics();
+    {% endif %}
+}
+
+function updateJSONDisplay() {
+    const jsonDisplay = document.getElementById('json-display');
+    if (consoleData.length > 0) {
+        const latestData = consoleData[consoleData.length - 1];
+        jsonDisplay.textContent = JSON.stringify(latestData, null, 2);
+    }
+}
+
+function updateTableDisplay() {
+    const tbody = document.getElementById('table-body');
+    
+    if (consoleData.length === 0) {
+        tbody.innerHTML = `
+            <tr class="placeholder">
+                <td colspan="4" class="no-data">No data available - execute commands to see results</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Show last 10 items
+    const recentData = consoleData.slice(-10).reverse();
+    tbody.innerHTML = '';
+    
+    recentData.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${getDataName(item.data)}</td>
+            <td>${getDataStatus(item.data)}</td>
+            <td>${getDataType(item.data)}</td>
+            <td>${formatTimestamp(item.timestamp)}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function getDataName(data) {
+    if (data.command) return data.command.substring(0, 30) + '...';
+    if (data.name) return data.name;
+    if (data.type) return data.type;
+    return 'Unknown';
+}
+
+function getDataStatus(data) {
+    if (data.success !== undefined) return data.success ? '✅ Success' : '❌ Failed';
+    if (data.status) return data.status;
+    return 'Unknown';
+}
+
+function getDataType(data) {
+    if (data.command) return 'Command';
+    if (data.type) return data.type;
+    return 'Data';
+}
+
+function formatTimestamp(timestamp) {
+    return new Date(timestamp).toLocaleTimeString();
+}
+
+function updateConsoleCount() {
+    document.getElementById('console-count').textContent = 
+        `${consoleData.length} items, ${logEntries.length} logs`;
+}
+
+// Logging functions
+function addLogEntry(level, message) {
+    const logEntry = {
+        timestamp: new Date(),
+        level: level,
+        message: message,
+        id: Date.now() + Math.random()
+    };
+    
+    logEntries.push(logEntry);
+    
+    const logContainer = document.getElementById('log-entries');
+    const logElement = document.createElement('div');
+    logElement.className = `log-entry ${level}`;
+    logElement.innerHTML = `
+        <span class="log-timestamp">${logEntry.timestamp.toLocaleTimeString()}</span>
+        <span class="log-level ${level}">${level.toUpperCase()}</span>
+        <span class="log-message">${message}</span>
+    `;
+    
+    logContainer.appendChild(logElement);
+    logContainer.scrollTop = logContainer.scrollHeight;
+    
+    // Keep only last 100 log entries
+    if (logEntries.length > 100) {
+        logEntries = logEntries.slice(-100);
+        const firstChild = logContainer.firstChild;
+        if (firstChild) logContainer.removeChild(firstChild);
+    }
+    
+    updateConsoleCount();
+}
+
+function filterLogs() {
+    const levelFilter = document.getElementById('log-level-filter').value;
+    const searchFilter = document.getElementById('log-search').value.toLowerCase();
+    
+    const logElements = document.querySelectorAll('.log-entry');
+    
+    logElements.forEach(element => {
+        const level = element.querySelector('.log-level').textContent.toLowerCase();
+        const message = element.querySelector('.log-message').textContent.toLowerCase();
+        
+        const levelMatch = levelFilter === 'all' || level.includes(levelFilter);
+        const searchMatch = searchFilter === '' || message.includes(searchFilter);
+        
+        if (levelMatch && searchMatch) {
+            element.style.display = 'flex';
+        } else {
+            element.style.display = 'none';
+        }
+    });
+}
+
+// Analytics functions (Premium feature)
+{% if has_feature('data_analysis') %}
+function updateAnalytics() {
+    // Update command count
+    document.getElementById('total-commands').textContent = consoleData.length;
+    
+    // Calculate success rate
+    const successfulCommands = consoleData.filter(item => 
+        item.data.success === true || item.data.status === 'success'
+    ).length;
+    const successRate = consoleData.length > 0 ? 
+        Math.round((successfulCommands / consoleData.length) * 100) : 100;
+    document.getElementById('success-rate').textContent = `${successRate}%`;
+    
+    // Mock average response time
+    document.getElementById('avg-response').textContent = `${Math.floor(Math.random() * 500) + 100}ms`;
+    
+    // Update chart (simplified)
+    updateExecutionChart();
+}
+
+function updateExecutionChart() {
+    // This would use a real charting library like Chart.js in production
+    const canvas = document.getElementById('execution-chart');
+    const ctx = canvas.getContext('2d');
+    
+    // Simple mock chart
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#4CAF50';
+    
+    const barWidth = 30;
+    const barSpacing = 10;
+    
+    for (let i = 0; i < Math.min(consoleData.length, 10); i++) {
+        const height = Math.random() * 150 + 20;
+        const x = i * (barWidth + barSpacing);
+        const y = canvas.height - height;
+        
+        ctx.fillRect(x, y, barWidth, height);
+    }
+}
+{% endif %}
+
+// Dashboard Provider Switching Functions
+function switchProviderContext(provider) {
+    // Hide all dashboard views
+    document.querySelectorAll('.dashboard-view').forEach(view => {
+        view.classList.remove('active');
+    });
+    
+    // Show selected provider view
+    document.getElementById(`view-${provider}`).classList.add('active');
+    
+    // Update context indicator
+    const contextMap = {
+        'overview': 'Multi-Cloud Overview',
+        'k8s': 'Kubernetes Context',
+        'aws': 'AWS Context',
+        'gcp': 'GCP Context',
+        'ci-cd': 'CI/CD Context'
+    };
+    
+    document.getElementById('context-indicator').textContent = contextMap[provider];
+    
+    addLogEntry('info', `Switched to ${contextMap[provider]}`);
+}
+
+// Kubernetes Dashboard Functions
+function switchCluster(cluster) {
+    // Update cluster tabs
+    document.querySelectorAll('.cluster-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Mock cluster data update
+    updateK8sClusterData(cluster);
+    
+    addLogEntry('info', `Switched to ${cluster.toUpperCase()} cluster`);
+}
+
+function updateK8sClusterData(cluster) {
+    // Mock data based on cluster
+    const clusterData = {
+        'dev': {
+            nodes: '3/3',
+            pods: '24/30',
+            storage: '67%',
+            cpu: 65,
+            memory: 78,
+            disk: 45
+        },
+        'staging': {
+            nodes: '2/2',
+            pods: '18/20',
+            storage: '45%',
+            cpu: 42,
+            memory: 56,
+            disk: 32
+        },
+        'prod': {
+            nodes: '5/5',
+            pods: '48/50',
+            storage: '78%',
+            cpu: 82,
+            memory: 89,
+            disk: 67
+        }
+    };
+    
+    const data = clusterData[cluster];
+    if (data) {
+        // Update health indicators
+        const healthValues = document.querySelectorAll('.health-value');
+        if (healthValues.length >= 3) {
+            healthValues[0].textContent = data.nodes;
+            healthValues[1].textContent = data.pods;
+            healthValues[2].textContent = data.storage;
+        }
+        
+        // Update resource bars
+        const progressFills = document.querySelectorAll('.progress-fill');
+        const resourceValues = document.querySelectorAll('.resource-value');
+        
+        if (progressFills.length >= 3 && resourceValues.length >= 3) {
+            progressFills[0].style.width = data.cpu + '%';
+            resourceValues[0].textContent = data.cpu + '%';
+            
+            progressFills[1].style.width = data.memory + '%';
+            resourceValues[1].textContent = data.memory + '%';
+            
+            progressFills[2].style.width = data.disk + '%';
+            resourceValues[2].textContent = data.disk + '%';
+        }
+    }
+}
+
+// GCP Dashboard Functions
+function switchGCPProject(project) {
+    // Update project tabs
+    document.querySelectorAll('.project-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    addLogEntry('info', `Switched to GCP project: ${project}`);
+}
+
+// Dashboard Management Functions
+function refreshDashboard() {
+    // Simulate data refresh
+    addLogEntry('info', 'Refreshing dashboard data...');
+    
+    // Mock data updates with random variations
+    setTimeout(() => {
+        updateMetricCards();
+        addLogEntry('info', 'Dashboard data refreshed');
+    }, 1000);
+}
+
+function toggleDashboard() {
+    const content = document.getElementById('dashboard-content');
+    const toggle = document.getElementById('dashboard-toggle');
+    const container = document.getElementById('dashboard-container');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        toggle.textContent = '▼ Minimize';
+        container.style.height = '60vh';
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▲ Expand';
+        container.style.height = '40px';
+    }
+}
+
+function updateMetricCards() {
+    // Update overview metrics with slight variations
+    const metrics = {
+        'total-resources': Math.floor(120 + Math.random() * 20),
+        'active-pods': Math.floor(40 + Math.random() * 10),
+        'cloud-services': Math.floor(6 + Math.random() * 4),
+        'deployments': Math.floor(10 + Math.random() * 6)
+    };
+    
+    Object.entries(metrics).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    });
+}
+
+// Initialize dashboard on load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default view to overview
+    switchProviderContext('overview');
+    
+    // Update metrics every 30 seconds
+    setInterval(() => {
+        if (document.getElementById('view-overview').classList.contains('active')) {
+            updateMetricCards();
+        }
+    }, 30000);
+});
+
+// Listen for command executions to populate console
+window.addEventListener('commandExecuted', function(event) {
+    addConsoleData({
+        command: event.detail.command,
+        success: event.detail.success,
+        output: event.detail.output,
+        timestamp: new Date().toISOString()
+    });
+    
+    addLogEntry(event.detail.success ? 'info' : 'error', 
+                `Command ${event.detail.success ? 'completed' : 'failed'}: ${event.detail.command}`);
+});
+</script>

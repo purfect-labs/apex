@@ -1,0 +1,24 @@
+services:
+  apex-build:
+    build:
+      context: ..
+      dockerfile: linux-native/Dockerfile
+    volumes:
+      - ../dist:/app/dist
+      - /tmp:/tmp
+    command: ["./linux-native/build.sh", "--all"]
+    
+  # Development server for testing
+  apex-dev:
+    build:
+      context: ..
+      dockerfile: linux-native/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+      - /tmp:/tmp
+    working_dir: /app
+    command: ["python3", "web/main.py"]
+    environment:
+      - PYTHONUNBUFFERED=1

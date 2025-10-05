@@ -1,0 +1,138 @@
+<!-- Core K8s Commands - Always Available -->
+<div class="command-section" data-feature="core">
+    <h4 class="section-title">🎯 Kubernetes Core</h4>
+    
+    <!-- Quick Actions -->
+    <div class="command-group">
+        <h5 class="group-title">Quick Actions</h5>
+        <div class="command-buttons">
+            <button class="cmd-btn" data-cmd="kubectl get pods" title="List all pods">
+                📋 Pods
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl get services" title="List all services">
+                🌐 Services
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl get nodes" title="List cluster nodes">
+                🖥️ Nodes
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl get namespaces" title="List namespaces">
+                📁 NS
+            </button>
+        </div>
+    </div>
+    
+    <!-- Pod Management -->
+    <div class="command-group">
+        <h5 class="group-title">Pod Operations</h5>
+        <div class="command-buttons">
+            <button class="cmd-btn" data-cmd="kubectl describe pod" data-needs-input="pod-name" title="Describe a specific pod">
+                🔍 Describe
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl logs" data-needs-input="pod-name" title="Get pod logs">
+                📜 Logs
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl exec -it" data-needs-input="pod-name" data-suffix="-- /bin/bash" title="Shell into pod">
+                💻 Shell
+            </button>
+            <button class="cmd-btn warning" data-cmd="kubectl delete pod" data-needs-input="pod-name" title="Delete pod">
+                🗑️ Delete
+            </button>
+        </div>
+    </div>
+    
+    <!-- Configuration -->
+    <div class="command-group">
+        <h5 class="group-title">Configuration</h5>
+        <div class="command-buttons">
+            <button class="cmd-btn" data-cmd="kubectl config get-contexts" title="List available contexts">
+                📋 Contexts
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl config current-context" title="Show current context">
+                📍 Current
+            </button>
+            <button class="cmd-btn" data-cmd="kubectl config use-context" data-needs-input="context-name" title="Switch context">
+                🔄 Switch
+            </button>
+        </div>
+    </div>
+    
+    <!-- Port Forwarding - Always Available -->
+    <div class="command-group">
+        <h5 class="group-title">Port Forwarding</h5>
+        <div class="port-forward-controls">
+            <div class="input-group">
+                <input type="text" id="port-forward-pod" placeholder="Pod name" class="cmd-input">
+                <input type="text" id="port-forward-local" placeholder="Local port" class="cmd-input" value="8080">
+                <input type="text" id="port-forward-remote" placeholder="Remote port" class="cmd-input" value="80">
+                <button class="cmd-btn primary" onclick="startPortForward()" title="Start port forwarding">
+                    🚀 Forward
+                </button>
+            </div>
+            <div class="active-forwards" id="active-forwards">
+                <!-- Active port forwards will be populated here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Core K8s functionality - always available
+function startPortForward() {
+    const pod = document.getElementById('port-forward-pod').value;
+    const localPort = document.getElementById('port-forward-local').value;
+    const remotePort = document.getElementById('port-forward-remote').value;
+    
+    if (!pod || !localPort || !remotePort) {
+        alert('Please fill in all port forwarding fields');
+        return;
+    }
+    
+    const command = `kubectl port-forward ${pod} ${localPort}:${remotePort}`;
+    executeCommand(command, true); // true for background process
+    
+    // Add to active forwards display
+    addActiveForward(pod, localPort, remotePort);
+}
+
+function addActiveForward(pod, localPort, remotePort) {
+    const container = document.getElementById('active-forwards');
+    const forwardDiv = document.createElement('div');
+    forwardDiv.className = 'active-forward';
+    forwardDiv.innerHTML = `
+        <span class="forward-info">${pod}:${remotePort} → localhost:${localPort}</span>
+        <button class="cmd-btn small warning" onclick="stopPortForward(this, '${localPort}')">Stop</button>
+    `;
+    container.appendChild(forwardDiv);
+}
+
+function stopPortForward(button, localPort) {
+    // Kill the port forward process
+    executeCommand(`pkill -f "port-forward.*${localPort}"`);
+    
+    // Remove from UI
+    button.parentElement.remove();
+}
+
+// Command execution for core features
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.cmd-btn[data-cmd]') && e.target.closest('[data-feature="core"]')) {
+        const cmd = e.target.getAttribute('data-cmd');
+        const needsInput = e.target.getAttribute('data-needs-input');
+        const suffix = e.target.getAttribute('data-suffix') || '';
+        
+        let fullCommand = cmd;
+        
+        if (needsInput) {
+            const input = prompt(`Enter ${needsInput}:`);
+            if (!input) return;
+            fullCommand += ` ${input}`;
+        }
+        
+        if (suffix) {
+            fullCommand += ` ${suffix}`;
+        }
+        
+        executeCommand(fullCommand);
+    }
+});
+</script>

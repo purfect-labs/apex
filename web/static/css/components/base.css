@@ -1,0 +1,61 @@
+/* APEX Cyberpunk Command Center - Base Styles */
+:root {
+    --neon-green: #00ff41;
+    --neon-blue: #00d4ff;
+    --neon-pink: #ff0080;
+    --neon-purple: #9945ff;
+    --neon-yellow: #ffff00;
+    --neon-cyan: #00ffff;
+    --dark-bg: #0a0a0a;
+    --panel-bg: #1a1a1a;
+    --border-color: #333;
+    --text-color: #00ff41;
+    --text-secondary: #888;
+    --text-dim: #555;
+    --accent-orange: #ff6600;
+    --transition-fast: 0.2s ease;
+    --transition-smooth: 0.3s ease;
+    --border-radius: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'JetBrains Mono', monospace;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+    color: var(--text-color);
+    overflow-x: hidden;
+    min-height: 100vh;
+    scroll-behavior: smooth;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--neon-green);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-cyan);
+}

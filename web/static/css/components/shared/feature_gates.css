@@ -1,0 +1,416 @@
+/*
+ * APEX Feature Gating CSS
+ * Visual indicators for locked features and tier-based access
+ * Following APEX cyberpunk design system
+ */
+
+/* Feature Tier Badges */
+.feature-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.feature-badge.basic {
+    background: #6c757d;
+    color: #fff;
+    border: 1px solid #495057;
+}
+
+.feature-badge.trial {
+    background: #17a2b8;
+    color: #fff;
+    border: 1px solid #138496;
+    animation: trial-pulse 2s infinite;
+}
+
+.feature-badge.premium {
+    background: linear-gradient(45deg, #28a745, #34ce57);
+    color: #000;
+    border: 1px solid #1e7e34;
+    animation: premium-glow 3s infinite;
+}
+
+@keyframes trial-pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(23, 162, 184, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(23, 162, 184, 0.8); }
+}
+
+@keyframes premium-glow {
+    0%, 100% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.6); }
+    50% { box-shadow: 0 0 20px rgba(40, 167, 69, 1); }
+}
+
+/* Feature Lock States */
+.command-btn.locked,
+.feature-item.locked {
+    position: relative;
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.command-btn.locked::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 8px,
+        rgba(255, 255, 255, 0.05) 8px,
+        rgba(255, 255, 255, 0.05) 16px
+    );
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.command-btn.locked .command-icon {
+    filter: grayscale(1) brightness(0.7);
+}
+
+/* Feature Lock Icon */
+.feature-lock {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    background: linear-gradient(135deg, #ff5f56, #ff8a80);
+    color: white;
+    padding: 0.15rem 0.3rem;
+    border-radius: 8px;
+    font-size: 0.5rem;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(255, 95, 86, 0.3);
+    animation: lock-pulse 2s infinite;
+}
+
+@keyframes lock-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Upgrade Hint */
+.upgrade-hint {
+    position: absolute;
+    bottom: 0.25rem;
+    right: 0.25rem;
+    background: linear-gradient(135deg, #ffc107, #ffeb3b);
+    color: #000;
+    padding: 0.1rem 0.25rem;
+    border-radius: 6px;
+    font-size: 0.45rem;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(255, 193, 7, 0.4);
+}
+
+/* Feature Overlay for Locked Content */
+.feature-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: inherit;
+    z-index: 10;
+    backdrop-filter: blur(2px);
+}
+
+.feature-overlay.locked {
+    background: linear-gradient(135deg, 
+        rgba(255, 95, 86, 0.1) 0%, 
+        rgba(0, 0, 0, 0.8) 50%,
+        rgba(255, 95, 86, 0.1) 100%
+    );
+}
+
+.lock-message {
+    text-align: center;
+    color: white;
+    padding: 0.5rem;
+}
+
+.lock-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    animation: lock-shake 1s infinite;
+}
+
+@keyframes lock-shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-2deg); }
+    75% { transform: rotate(2deg); }
+}
+
+.lock-text {
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.upgrade-btn {
+    background: linear-gradient(135deg, #28a745, #34ce57);
+    color: #000;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.upgrade-btn:hover {
+    background: linear-gradient(135deg, #218838, #28a745);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.5);
+}
+
+/* Category Headers with Tier Requirements */
+.category-title.locked {
+    position: relative;
+    opacity: 0.6;
+}
+
+.category-title .tier-requirement {
+    margin-left: 0.5rem;
+    font-size: 0.5rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 6px;
+    background: rgba(255, 95, 86, 0.2);
+    color: #ff5f56;
+    border: 1px solid #ff5f56;
+}
+
+/* Tab-level Feature Gating */
+.tab-btn.locked {
+    position: relative;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tab-btn.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: 0.6rem;
+    background: #ff5f56;
+    color: white;
+    padding: 1px 3px;
+    border-radius: 50%;
+    line-height: 1;
+}
+
+/* Premium Feature Highlights */
+.feature-premium {
+    position: relative;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    background: linear-gradient(135deg, 
+        rgba(40, 167, 69, 0.05) 0%, 
+        transparent 50%,
+        rgba(40, 167, 69, 0.05) 100%
+    );
+}
+
+.feature-premium::before {
+    content: '👑';
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    font-size: 0.8rem;
+    z-index: 1;
+}
+
+/* Trial Feature Indicators */
+.feature-trial {
+    position: relative;
+    border: 1px solid rgba(23, 162, 184, 0.3);
+    background: linear-gradient(135deg, 
+        rgba(23, 162, 184, 0.05) 0%, 
+        transparent 50%,
+        rgba(23, 162, 184, 0.05) 100%
+    );
+}
+
+.feature-trial::before {
+    content: '🆓';
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    font-size: 0.7rem;
+    z-index: 1;
+}
+
+/* Upgrade Prompt Modal Styles */
+.upgrade-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.upgrade-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 2px solid var(--neon-green);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 255, 65, 0.3);
+}
+
+.upgrade-header {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--neon-green);
+}
+
+.upgrade-description {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.tier-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.tier-option {
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.tier-option:hover {
+    border-color: var(--neon-green);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 65, 0.2);
+}
+
+.tier-option.recommended {
+    border-color: var(--neon-green);
+    background: rgba(0, 255, 65, 0.1);
+}
+
+.tier-option.recommended::before {
+    content: '⭐ Recommended';
+    display: block;
+    color: var(--neon-green);
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+/* Feature List in Upgrade Modal */
+.feature-list {
+    text-align: left;
+    margin: 1rem 0;
+}
+
+.feature-list .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+}
+
+.feature-list .feature-item.available {
+    color: var(--neon-green);
+}
+
+.feature-list .feature-item.locked {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.feature-list .feature-item .icon {
+    width: 1rem;
+    text-align: center;
+}
+
+/* Responsive Feature Gating */
+@media (max-width: 768px) {
+    .feature-badge {
+        font-size: 0.5rem;
+        padding: 0.1rem 0.3rem;
+    }
+    
+    .feature-lock {
+        font-size: 0.4rem;
+        padding: 0.1rem 0.2rem;
+    }
+    
+    .upgrade-hint {
+        display: none; /* Hide on mobile to save space */
+    }
+    
+    .lock-message {
+        padding: 0.3rem;
+    }
+    
+    .lock-text {
+        font-size: 0.6rem;
+    }
+    
+    .upgrade-btn {
+        font-size: 0.5rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* Hover Effects for Available Features */
+.command-btn:not(.locked):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3);
+}
+
+.command-btn:not(.locked):hover .command-icon {
+    transform: scale(1.1);
+}
+
+/* Loading State for Feature Checks */
+.feature-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.feature-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 1rem; height: 1rem;
+    margin: -0.5rem 0 0 -0.5rem;
+    border: 2px solid rgba(0, 255, 65, 0.3);
+    border-top: 2px solid var(--neon-green);
+    border-radius: 50%;
+    animation: feature-loading 1s linear infinite;
+}
+
+@keyframes feature-loading {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

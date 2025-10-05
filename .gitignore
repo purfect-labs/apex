@@ -1,0 +1,105 @@
+# LLM Collector output
+llm-collector/results.json
+
+# Backup directory
+.backup
+.swiggit.json
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.nyc_output/
+coverage/
+
+# Python environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyInstaller build artifacts
+build/
+dist/
+
+# All build cache and artifacts
+*.pak
+*.asar
+*.dat
+*.nib
+*.plist
+*.jar
+*.pem
+
+# Node.js
+node_modules/
+web/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Electron build artifacts
+electron/dist/
+electron/node_modules/
+
+# Native build artifacts
+native/build/
+native/dist/
+native/cache/
+linux-native/build/
+linux-native/dist/
+linux-native/cache/
+build/
+dist/
+.dist/
+unified_dist/
+cache/
+
+# Electron/PyInstaller/macOS app bundle artifacts
+*.app/
+*.dmg
+*.pkg
+Contents/
+Frameworks/
+Resources/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Testing
+test-results/
+playwright-report/
+.playwright/
+test_results/
+
+# Logs
+*.log
+logs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db

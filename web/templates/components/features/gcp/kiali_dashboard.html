@@ -1,0 +1,246 @@
+<!-- 
+    GCP Kiali Dashboard Component
+    Feature: kiali_dashboard (Premium Only)
+    Allows opening browser tabs for connected Kiali instances
+-->
+<div class="command-category" data-feature="kiali_dashboard">
+    <div class="category-title">
+        🌐 Kiali Dashboard
+        {% if not has_feature('kiali_dashboard') %}
+            <span class="tier-requirement">👑 Premium Required</span>
+        {% endif %}
+    </div>
+    
+    <div style="margin-bottom: 1rem;">
+        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+            Select environments:
+        </div>
+        <div id="kali-env-selection">
+            <label>
+                <input type="checkbox" class="kali-env-checkbox" data-env="dev" 
+                       {% if not has_feature('kiali_dashboard') %}disabled{% endif %}>
+                <span>dev (20002)</span>
+            </label>
+            <label>
+                <input type="checkbox" class="kali-env-checkbox" data-env="stage"
+                       {% if not has_feature('kiali_dashboard') %}disabled{% endif %}>
+                <span>stage (20003)</span>
+            </label>
+            <label>
+                <input type="checkbox" class="kali-env-checkbox" data-env="prod"
+                       {% if not has_feature('kiali_dashboard') %}disabled{% endif %}>
+                <span>prod (20004)</span>
+            </label>
+        </div>
+    </div>
+    
+    <div class="command-grid">
+        <!-- Kiali Connect (Trial+ Feature) -->
+        <div class="feature-item" data-feature="kiali_connect">
+            {% if has_feature('kiali_connect') %}
+                <button class="command-btn feature-trial" onclick="connectKali()">
+                    <div class="command-icon">🚀</div>
+                    <div class="command-text">
+                        <div class="command-title">Connect Kali</div>
+                        <div class="command-desc">Setup kubectl port forwarding</div>
+                    </div>
+                </button>
+            {% else %}
+                <button class="command-btn locked" onclick="showUpgradePrompt('kiali_connect')">
+                    <div class="command-icon">🚀</div>
+                    <div class="command-text">
+                        <div class="command-title">Connect Kali</div>
+                        <div class="command-desc">Setup kubectl port forwarding</div>
+                    </div>
+                    <div class="feature-lock">🔒</div>
+                    <div class="upgrade-hint">Trial Required</div>
+                </button>
+            {% endif %}
+        </div>
+
+        <!-- Kiali Dashboard Opening (Premium Feature) -->
+        <div class="feature-item" data-feature="kiali_dashboard">
+            {% if has_feature('kiali_dashboard') %}
+                <button class="command-btn feature-premium" onclick="openKaliDashboards()">
+                    <div class="command-icon">🔗</div>
+                    <div class="command-text">
+                        <div class="command-title">Open Dashboards</div>
+                        <div class="command-desc">Open browser tabs for connected Kiali instances</div>
+                    </div>
+                </button>
+            {% else %}
+                <button class="command-btn locked" onclick="showUpgradePrompt('kiali_dashboard')">
+                    <div class="command-icon">🔗</div>
+                    <div class="command-text">
+                        <div class="command-title">Open Dashboards</div>
+                        <div class="command-desc">Open browser tabs for connected Kiali instances</div>
+                    </div>
+                    <div class="feature-lock">🔒</div>
+                    <div class="upgrade-hint">Premium Only</div>
+                    <!-- Feature overlay for locked state -->
+                    <div class="feature-overlay locked">
+                        <div class="lock-message">
+                            <div class="lock-icon">🔒</div>
+                            <div class="lock-text">👑 Premium Feature</div>
+                            <button class="upgrade-btn" onclick="showUpgradePrompt('kiali_dashboard')">
+                                Upgrade Now
+                            </button>
+                        </div>
+                    </div>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Category-level lock overlay if entire feature is locked -->
+    {% if not has_feature('kiali_connect') %}
+        <div class="feature-overlay locked">
+            <div class="lock-message">
+                <div class="lock-icon">🔒</div>
+                <div class="lock-text">🆓 Trial or 👑 Premium Required</div>
+                <div style="margin-top: 0.5rem;">
+                    <button class="upgrade-btn" onclick="showUpgradePrompt('kiali_connect')">
+                        Start Trial
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Feature-aware JavaScript functions
+window.connectKali = function() {
+    {% if has_feature('kiali_connect') %}
+        // Implementation for connecting Kali
+        const selectedEnvs = Array.from(document.querySelectorAll('.kali-env-checkbox:checked'))
+            .map(cb => cb.dataset.env);
+        
+        if (selectedEnvs.length === 0) {
+            alert('Please select at least one environment');
+            return;
+        }
+        
+        selectedEnvs.forEach(async (env) => {
+            try {
+                const response = await fetch(`/api/gcp/kali/forward/${env}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    addDataLine(`🚀 Kali port forwarding started for ${env}`, 'success');
+                } else {
+                    addDataLine(`❌ Failed to start Kali for ${env}: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addDataLine(`⚠️ Error connecting Kali to ${env}: ${error.message}`, 'warning');
+            }
+        });
+    {% else %}
+        showUpgradePrompt('kiali_connect');
+    {% endif %}
+};
+
+window.openKaliDashboards = function() {
+    {% if has_feature('kiali_dashboard') %}
+        // Implementation for opening dashboards
+        const portMap = { 'dev': 20002, 'stage': 20003, 'prod': 20004 };
+        const selectedEnvs = Array.from(document.querySelectorAll('.kali-env-checkbox:checked'))
+            .map(cb => cb.dataset.env);
+        
+        if (selectedEnvs.length === 0) {
+            alert('Please select at least one environment and ensure Kali connections are active');
+            return;
+        }
+        
+        selectedEnvs.forEach(env => {
+            const port = portMap[env];
+            const url = `http://localhost:${port}`;
+            
+            // Open new tab/window
+            window.open(url, `kiali-${env}`);
+            addDataLine(`🔗 Opened Kiali dashboard for ${env} at ${url}`, 'success');
+        });
+    {% else %}
+        showUpgradePrompt('kiali_dashboard');
+    {% endif %}
+};
+
+// Upgrade prompt function
+window.showUpgradePrompt = function(featureName) {
+    const featureStatus = {{ get_feature_status(feature_name)|tojson if feature_name is defined else '{}' }};
+    
+    // Create upgrade modal
+    const modal = document.createElement('div');
+    modal.className = 'upgrade-modal';
+    modal.innerHTML = `
+        <div class="upgrade-content">
+            <div class="upgrade-header">🔒 Feature Locked</div>
+            <div class="upgrade-description">
+                <strong>"${featureStatus.feature_name || featureName}"</strong> requires 
+                ${featureStatus.required_tier_name || 'a higher license tier'}.
+            </div>
+            <div class="tier-comparison">
+                <div class="tier-option">
+                    <h4>🆓 Trial (Free)</h4>
+                    <div class="feature-list">
+                        <div class="feature-item available">
+                            <span class="icon">🚀</span> Kali Port Forwarding
+                        </div>
+                        <div class="feature-item available">
+                            <span class="icon">🔐</span> AWS SSO Auth
+                        </div>
+                        <div class="feature-item available">
+                            <span class="icon">📋</span> Live Logs
+                        </div>
+                    </div>
+                    <button class="upgrade-btn" onclick="generateTrialLicense()">Start 30-Day Trial</button>
+                </div>
+                <div class="tier-option recommended">
+                    <h4>👑 Premium</h4>
+                    <div class="feature-list">
+                        <div class="feature-item available">
+                            <span class="icon">🔗</span> Dashboard Opening
+                        </div>
+                        <div class="feature-item available">
+                            <span class="icon">💾</span> Database Connections
+                        </div>
+                        <div class="feature-item available">
+                            <span class="icon">🔄</span> CI/CD Operations
+                        </div>
+                        <div class="feature-item available">
+                            <span class="icon">📈</span> Advanced Monitoring
+                        </div>
+                    </div>
+                    <button class="upgrade-btn" onclick="contactForPremium()">Get Premium</button>
+                </div>
+            </div>
+            <button class="upgrade-btn" onclick="this.closest('.upgrade-modal').remove()" 
+                    style="background: #6c757d; margin-top: 1rem;">Close</button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+};
+
+// Helper functions for upgrade actions
+window.generateTrialLicense = function() {
+    // Open the license modal and switch to trial generation
+    document.querySelector('.upgrade-modal').remove();
+    showLicenseModal();
+    // Focus on trial generation section
+    document.getElementById('trial-email-input').focus();
+};
+
+window.contactForPremium = function() {
+    // This could open a contact form or redirect to pricing page
+    window.open('mailto:sales@apex.dev?subject=Premium License Inquiry', '_blank');
+    document.querySelector('.upgrade-modal').remove();
+};
+</script>

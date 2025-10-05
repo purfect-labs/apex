@@ -1,0 +1,308 @@
+<!-- License Management Modal -->
+<div class="modal-overlay" id="license-modal" style="display: none;">
+    <div class="modal-content license-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">🔑 License Management</h3>
+            <button class="modal-close" onclick="closeLicenseModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Current License Status -->
+            <div class="license-status-section">
+                <h4>Current License</h4>
+                <div class="current-license-info">
+                    <div class="license-badge {{ license_status.status if license_status else 'inactive' }}" id="current-license-badge">
+                        {% if license_status and license_status.status == 'active' %}
+                            ✅ {{ current_tier_info.name }} License Active
+                        {% else %}
+                            ❌ No Active License
+                        {% endif %}
+                    </div>
+                    <div class="license-details" id="current-license-details">
+                        {% if license_status and license_status.status == 'active' %}
+                            <p><strong>User:</strong> {{ license_status.user_email }}</p>
+                            <p><strong>Type:</strong> {{ license_status.license_type.title() }}</p>
+                            <p><strong>Features:</strong> {{ current_tier_info.feature_count }} available</p>
+                            {% if license_status.expires_at %}
+                                <p><strong>Expires:</strong> {{ license_status.expires_at }}</p>
+                            {% endif %}
+                        {% else %}
+                            <p>You are using the free Basic tier with limited features.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- License Actions -->
+            <div class="license-actions-section">
+                <div class="license-tabs">
+                    <button class="license-tab active" onclick="showLicenseTab('activate')">Activate License</button>
+                    <button class="license-tab" onclick="showLicenseTab('trial')">Start Trial</button>
+                    <button class="license-tab" onclick="showLicenseTab('upgrade')">Upgrade</button>
+                </div>
+                
+                <!-- Activate License Tab -->
+                <div class="license-tab-content active" id="license-tab-activate">
+                    <h5>Enter License Key</h5>
+                    <form id="license-activate-form">
+                        <div class="form-group">
+                            <label for="license-key">License Key:</label>
+                            <input type="text" id="license-key" placeholder="Enter your license key" class="license-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-email">Email Address:</label>
+                            <input type="email" id="user-email" placeholder="your.email@company.com" class="license-input">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="validateLicenseKey()" class="btn-secondary">Validate</button>
+                            <button type="submit" class="btn-primary">Activate License</button>
+                        </div>
+                    </form>
+                    <div id="license-validation-result"></div>
+                </div>
+                
+                <!-- Start Trial Tab -->
+                <div class="license-tab-content" id="license-tab-trial">
+                    <h5>Start Free Trial</h5>
+                    <div class="trial-benefits">
+                        <p>🆓 Get full access to Trial features for 30 days:</p>
+                        <ul>
+                            <li>✅ AWS SSO Authentication</li>
+                            <li>✅ GCP Authentication</li>
+                            <li>✅ Live Log Streaming</li>
+                            <li>✅ Kiali Port Forwarding</li>
+                            <li>✅ ECS Operations</li>
+                            <li>✅ CloudWatch Logs</li>
+                            <li>✅ Active Connection Monitoring</li>
+                        </ul>
+                    </div>
+                    <form id="trial-form">
+                        <div class="form-group">
+                            <label for="trial-email">Email Address:</label>
+                            <input type="email" id="trial-email" placeholder="your.email@company.com" class="license-input" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Start 30-Day Trial</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Upgrade Tab -->
+                <div class="license-tab-content" id="license-tab-upgrade">
+                    <h5>Upgrade Options</h5>
+                    <div class="upgrade-options">
+                        {% for option in upgrade_options %}
+                            <div class="upgrade-option">
+                                <div class="upgrade-header">
+                                    <h6>{{ option.icon }} {{ option.name }}</h6>
+                                    <div class="upgrade-price">{{ option.price }}</div>
+                                </div>
+                                <div class="upgrade-features">
+                                    <p><strong>{{ option.feature_count }}</strong> features included</p>
+                                    <ul>
+                                        {% for feature in option.features[:3] %}
+                                            <li>{{ feature }}</li>
+                                        {% endfor %}
+                                        {% if option.features|length > 3 %}
+                                            <li>+ {{ option.features|length - 3 }} more features</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                <button class="btn-primary upgrade-btn" onclick="selectUpgrade('{{ option.tier }}')">
+                                    Upgrade to {{ option.name }}
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current License Management -->
+            {% if license_status and license_status.status == 'active' %}
+                <div class="license-management-section">
+                    <h4>License Management</h4>
+                    <div class="management-actions">
+                        <button class="btn-secondary" onclick="refreshLicenseStatus()">🔄 Refresh Status</button>
+                        <button class="btn-warning" onclick="deactivateLicense()">🔓 Deactivate License</button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeLicenseModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// License Modal JavaScript
+function showLicenseModal() {
+    document.getElementById('license-modal').style.display = 'flex';
+}
+
+function closeLicenseModal() {
+    document.getElementById('license-modal').style.display = 'none';
+}
+
+function showLicenseTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.license-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`button[onclick="showLicenseTab('${tabName}')"]`).classList.add('active');
+    
+    // Update tab content
+    document.querySelectorAll('.license-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`license-tab-${tabName}`).classList.add('active');
+}
+
+async function validateLicenseKey() {
+    const licenseKey = document.getElementById('license-key').value;
+    const resultDiv = document.getElementById('license-validation-result');
+    
+    if (!licenseKey) {
+        resultDiv.innerHTML = '<div class="error">Please enter a license key</div>';
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/license/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ license_key: licenseKey })
+        });
+        
+        const result = await response.json();
+        
+        if (result.valid) {
+            resultDiv.innerHTML = '<div class="success">✅ License key is valid!</div>';
+        } else {
+            resultDiv.innerHTML = `<div class="error">❌ ${result.error || 'Invalid license key'}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div class="error">❌ Validation failed</div>';
+    }
+}
+
+// Handle license activation form
+document.getElementById('license-activate-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const licenseKey = document.getElementById('license-key').value;
+    const userEmail = document.getElementById('user-email').value;
+    
+    if (!licenseKey || !userEmail) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/license/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                license_key: licenseKey,
+                user_email: userEmail 
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('License activated successfully! Page will reload.');
+            location.reload();
+        } else {
+            alert('License activation failed: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('License activation failed: ' + error.message);
+    }
+});
+
+// Handle trial form
+document.getElementById('trial-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('trial-email').value;
+    
+    if (!email) {
+        alert('Please enter your email address');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/license/generate-trial', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                user_email: email,
+                days: 30
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Trial license generated! Page will reload.');
+            location.reload();
+        } else {
+            alert('Trial generation failed: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('Trial generation failed: ' + error.message);
+    }
+});
+
+async function refreshLicenseStatus() {
+    try {
+        const response = await fetch('/api/license/status');
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('License status refreshed! Page will reload.');
+            location.reload();
+        } else {
+            alert('Failed to refresh license status');
+        }
+    } catch (error) {
+        alert('Failed to refresh license status: ' + error.message);
+    }
+}
+
+async function deactivateLicense() {
+    if (!confirm('Are you sure you want to deactivate your license? This will revert to the basic tier.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/license/deactivate', {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('License deactivated. Page will reload.');
+            location.reload();
+        } else {
+            alert('Failed to deactivate license: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('Failed to deactivate license: ' + error.message);
+    }
+}
+
+function selectUpgrade(tier) {
+    alert(`Upgrade to ${tier} selected. Contact sales for licensing options.`);
+}
+
+// Close modal when clicking outside
+document.getElementById('license-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLicenseModal();
+    }
+});
+</script>

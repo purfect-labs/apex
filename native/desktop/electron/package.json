@@ -1,0 +1,67 @@
+{
+  "name": "apex-native",
+  "version": "3.0.0",
+  "description": "APEX Command Center - Native macOS Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "pack": "electron-builder --dir"
+  },
+  "author": "APEX",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apex/apex.git"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.apex.commandcenter",
+    "productName": "APEX Command Center",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "resources/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/apex_app",
+        "to": "apex_app"
+      }
+    ],
+    "mac": {
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "target": "dmg",
+      "artifactName": "APEX-3.0.0-Unified.dmg"
+    },
+    "dmg": {
+      "title": "APEX Command Center",
+      "window": {
+        "width": 600,
+        "height": 400
+      },
+      "contents": [
+        {
+          "x": 150,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 450,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

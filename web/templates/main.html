@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ APEX Command Center - Cloud & CI Operations</title>
+    <meta name="description" content="Modern APEX command center for GCP, AWS, Git, and CI operations">
+    
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    
+    <!-- All styles included in main.css -->
+</head>
+<body>
+    <div class="apex-container">
+        <!-- Simplified Header -->
+        <header class="apex-header">
+            <div class="header-left">
+                <div class="apex-title">
+                    <span class="title-main">⚡ APEX</span>
+                    <span class="title-sub">COMMAND CENTER</span>
+                </div>
+                
+                <!-- License Badge -->
+                <div class="license-badge {{ current_tier }}">
+                    {{ current_tier_info.icon }} {{ current_tier_info.name }}
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <!-- Environment Selector -->
+                <div class="env-selector">
+                    <span class="env-label">ENV:</span>
+                    <div class="env-buttons">
+                        <button class="env-btn active" data-env="dev" onclick="switchEnvironment('dev')">DEV</button>
+                        <button class="env-btn" data-env="staging" onclick="switchEnvironment('staging')">STAGE</button>
+                        <button class="env-btn" data-env="prod" onclick="switchEnvironment('prod')">PROD</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <!-- System Health Indicator -->
+                <div class="health-indicator">
+                    <span class="health-icon">💚</span>
+                    <span class="health-text" id="health-status">OK</span>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown">
+                    <button class="profile-btn" onclick="toggleProfileDropdown()">
+                        <span class="profile-icon">👤</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="profile-menu" id="profile-dropdown-menu">
+                        <div class="profile-section">
+                            <div class="license-status">
+                                <span id="license-status-badge-header" class="status-badge {{ license_status.status if license_status else 'inactive' }}">
+                                    {% if license_status and license_status.status == 'active' %}
+                                        ✅ Licensed
+                                    {% else %}
+                                        ❌ Unlicensed
+                                    {% endif %}
+                                </span>
+                                <div class="license-email">
+                                    {{ license_status.user_email if license_status and license_status.user_email else 'No License' }}
+                                </div>
+                            </div>
+                            <div class="license-actions">
+                                <button onclick="showLicenseModal()" class="btn-license">🔑 Manage</button>
+                                <button onclick="refreshLicenseStatusDirect()" class="btn-refresh">🔄</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout with Hover-Expanding Side Panels -->
+        <div class="apex-layout">
+            <!-- Left Hover Panel -->
+            <div class="side-panel left-panel" onmouseenter="expandPanel(this)" onmouseleave="collapsePanel(this)">
+                <!-- Compact view -->
+                <div class="panel-compact">
+                    <div class="panel-icon-vertical">⚙️</div>
+                </div>
+                
+                <!-- Expanded view -->
+                <div class="panel-expanded">
+                    <div class="panel-header">
+                        <span class="panel-icon">⚙️</span>
+                        <span class="panel-title">Commands</span>
+                    </div>
+                    
+                    <div class="panel-content">
+                        <!-- Real kubectl commands only -->
+                        <div class="command-group">
+                            <div class="command-category">K8s Core</div>
+                            <button class="cmd-btn" onclick="executeCommand('kubectl get pods')">
+                                <span class="cmd-icon">📊</span>
+                                get pods
+                            </button>
+                            <button class="cmd-btn" onclick="executeCommand('kubectl get svc')">
+                                <span class="cmd-icon">🔗</span>
+                                get services
+                            </button>
+                            <button class="cmd-btn" onclick="executeCommand('kubectl get nodes')">
+                                <span class="cmd-icon">🖥️</span>
+                                get nodes
+                            </button>
+                        </div>
+                        
+                        {% if has_feature('gcp_auth') %}
+                        <div class="command-group">
+                            <div class="command-category">GCP</div>
+                            <button class="cmd-btn" onclick="executeCommand('gcloud auth list')">
+                                <span class="cmd-icon">🔐</span>
+                                auth status
+                            </button>
+                            <button class="cmd-btn" onclick="executeCommand('gcloud projects list')">
+                                <span class="cmd-icon">📁</span>
+                                projects
+                            </button>
+                        </div>
+                        {% endif %}
+                        
+                        {% if has_feature('aws_sso') %}
+                        <div class="command-group">
+                            <div class="command-category">AWS</div>
+                            <button class="cmd-btn" onclick="executeCommand('aws sts get-caller-identity')">
+                                <span class="cmd-icon">🔐</span>
+                                identity
+                            </button>
+                            <button class="cmd-btn" onclick="executeCommand('aws ec2 describe-instances')">
+                                <span class="cmd-icon">🖥️</span>
+                                instances
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center Content Area -->
+            <div class="center-content">
+                <!-- Terminal Area (Half Height) -->
+                <div class="terminal-section">
+                    {% include 'components/shared/terminal.html' %}
+                </div>
+                
+                <!-- Bottom Dashboard (Half Height) -->
+                <div class="dashboard-section">
+                    {% include 'components/shared/data_console.html' %}
+                </div>
+            </div>
+            
+            <!-- Right Hover Panel -->
+            <div class="side-panel right-panel" onmouseenter="expandPanel(this)" onmouseleave="collapsePanel(this)">
+                <!-- Compact view -->
+                <div class="panel-compact">
+                    <div class="panel-icon-vertical">📊</div>
+                </div>
+                
+                <!-- Expanded view -->
+                <div class="panel-expanded">
+                    <div class="panel-header">
+                        <span class="panel-icon">📁</span>
+                        <span class="panel-title">Status & Services</span>
+                    </div>
+                    
+                    <div class="panel-content">
+                        <!-- Cloud Provider Selection -->
+                        <div class="status-group">
+                            <div class="status-category">Cloud Provider</div>
+                            <div class="cloud-selector">
+                                <button class="cloud-btn active" data-cloud="aws" onclick="switchCloud('aws')">
+                                    <span class="cloud-icon">🟠</span> AWS
+                                </button>
+                                <button class="cloud-btn" data-cloud="gcp" onclick="switchCloud('gcp')">
+                                    <span class="cloud-icon">🔵</span> GCP
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Connection Status -->
+                        <div class="status-group">
+                            <div class="status-category">K8s Connection</div>
+                            <div class="status-item" id="kubectl-status">
+                                <span class="status-label">kubectl</span>
+                                <span class="status-value" id="kubectl-status-value">Checking...</span>
+                            </div>
+                            <div class="status-item" id="cluster-status">
+                                <span class="status-label">Cluster</span>
+                                <span class="status-value" id="cluster-status-value">Checking...</span>
+                            </div>
+                        </div>
+                        
+                        <!-- AWS Services (Trial+ Feature) -->
+                        <div class="status-group {{ 'locked-group' if not has_feature('aws_sso') else '' }}">
+                            <div class="status-category">
+                                AWS Services
+                                {% if not has_feature('aws_sso') %}
+                                    <span class="feature-lock" onclick="showUpgradePrompt('aws_sso')" title="Requires Trial or higher">🔒</span>
+                                {% endif %}
+                            </div>
+                            {% if has_feature('aws_sso') %}
+                            <div class="status-item" id="aws-sso-status">
+                                <span class="status-label">SSO</span>
+                                <span class="status-value" id="aws-sso-value" onclick="checkAWSSSO()" style="cursor: pointer;">Checking...</span>
+                            </div>
+                            {% else %}
+                            <div class="status-item locked" onclick="showUpgradePrompt('aws_sso')">
+                                <span class="status-label">SSO</span>
+                                <span class="status-value locked">🔒 Upgrade Required</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- GCP Services (Trial+ Feature) -->
+                        <div class="status-group {{ 'locked-group' if not has_feature('gcp_auth') else '' }}">
+                            <div class="status-category">
+                                GCP Services
+                                {% if not has_feature('gcp_auth') %}
+                                    <span class="feature-lock" onclick="showUpgradePrompt('gcp_auth')" title="Requires Trial or higher">🔒</span>
+                                {% endif %}
+                            </div>
+                            {% if has_feature('gcp_auth') %}
+                            <div class="status-item" id="gcp-auth-status">
+                                <span class="status-label">Auth</span>
+                                <span class="status-value" id="gcp-auth-value" onclick="checkGCPAuth()" style="cursor: pointer;">Checking...</span>
+                            </div>
+                            {% else %}
+                            <div class="status-item locked" onclick="showUpgradePrompt('gcp_auth')">
+                                <span class="status-label">Auth</span>
+                                <span class="status-value locked">🔒 Upgrade Required</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- System Metrics -->
+                        <div class="status-group" id="system-metrics">
+                            <div class="status-category">System Health</div>
+                            <div class="metric-item">
+                                <span class="metric-label">CPU</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="cpu-fill"></div>
+                                </div>
+                                <span class="metric-value" id="cpu-value">-</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Memory</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="memory-fill"></div>
+                                </div>
+                                <span class="metric-value" id="memory-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feature-gated modals -->
+    {% include 'components/licensing/license_modal.html' %}
+    
+    <!-- Upgrade prompts and modals -->
+    <div id="upgrade-modals-container"></div>
+
+    <!-- Load JavaScript modules -->
+    <script src="/static/js/components/shared/core.js"></script>
+    <script src="/static/js/components/shared/tabs.js"></script>
+    <script src="/static/js/components/shared/commands.js"></script>
+    <script src="/static/js/components/shared/profile.js"></script>
+    <script src="/static/js/components/gcp/kali.js"></script>
+    <script src="/static/js/main.js"></script>
+    
+    <!-- Feature Gate JavaScript -->
+    <script>
+        // Global feature status for JavaScript
+        window.APEX_FEATURES = {{ {
+            'current_tier': current_tier,
+            'available_features': available_features,
+            'locked_features': locked_features,
+            'upgrade_options': upgrade_options
+        }|tojson|safe }};
+        
+        // Initialize feature-aware components
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎯 APEX Command Center initializing with features:', window.APEX_FEATURES);
+            
+            // Initialize real API status checks
+            initRealAPIChecks();
+            
+            // Initialize environment switching
+            initEnvironmentSwitching();
+        });
+        
+        // Profile dropdown functions
+        function toggleProfileDropdown() {
+            const dropdown = document.querySelector('.profile-dropdown');
+            const menu = document.getElementById('profile-dropdown-menu');
+            
+            if (menu && dropdown) {
+                const isVisible = menu.classList.contains('visible');
+                
+                if (isVisible) {
+                    menu.classList.remove('visible');
+                    dropdown.classList.remove('active');
+                } else {
+                    menu.classList.add('visible');
+                    dropdown.classList.add('active');
+                    // Update real-time license status
+                    updateLicenseDisplay();
+                }
+            }
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.profile-dropdown');
+            const menu = document.getElementById('profile-dropdown-menu');
+            
+            if (dropdown && menu && !dropdown.contains(event.target)) {
+                menu.classList.remove('visible');
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        // Update license display in dropdown
+        function updateLicenseDisplay() {
+            // This will be connected to the existing license management system
+            console.log('Updating license display...');
+        }
+        
+        // Panel expand/collapse functions
+        function expandPanel(panel) {
+            panel.classList.add('expanded');
+        }
+        
+        function collapsePanel(panel) {
+            panel.classList.remove('expanded');
+        }
+        
+        // Execute real commands
+        function executeCommand(command) {
+            console.log('Executing command:', command);
+            // This will integrate with the existing terminal system
+            if (window.executeTerminalCommand) {
+                window.executeTerminalCommand(command);
+            }
+        }
+        
+        // Real API checks - no fake data
+        function initRealAPIChecks() {
+            // Check kubectl status
+            checkKubectlStatus();
+            
+            // Check cluster connectivity
+            checkClusterStatus();
+            
+            // Check AWS status if available
+            if (window.APEX_FEATURES.available_features.includes('aws_sso')) {
+                checkAWSStatus();
+            }
+            
+            // Check GCP status if available
+            if (window.APEX_FEATURES.available_features.includes('gcp_auth')) {
+                checkGCPStatus();
+            }
+            
+            // Update context display
+            updateContextDisplay();
+            
+            // Set up periodic updates
+            setInterval(updateRealStatus, 30000); // Every 30 seconds
+        }
+        
+        async function checkKubectlStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const statusElement = document.getElementById('kubectl-status-value');
+                if (statusElement) {
+                    if (data.kubectl_available) {
+                        statusElement.textContent = '✅ Ready';
+                        statusElement.className = 'status-value healthy';
+                    } else {
+                        statusElement.textContent = '❌ Not Found';
+                        statusElement.className = 'status-value error';
+                    }
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('kubectl-status-value');
+                if (statusElement) {
+                    statusElement.textContent = '❌ Error';
+                    statusElement.className = 'status-value error';
+                }
+            }
+        }
+        
+        async function checkClusterStatus() {
+            try {
+                // Use existing API endpoint
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const statusElement = document.getElementById('cluster-status-value');
+                if (statusElement) {
+                    if (data.healthy) {
+                        statusElement.textContent = '✅ Connected';
+                        statusElement.className = 'status-value healthy';
+                    } else {
+                        statusElement.textContent = '❌ Disconnected';
+                        statusElement.className = 'status-value error';
+                    }
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('cluster-status-value');
+                if (statusElement) {
+                    statusElement.textContent = '❌ Error';
+                    statusElement.className = 'status-value error';
+                }
+            }
+        }
+        
+        async function updateContextDisplay() {
+            try {
+                // This should call a real kubectl context check
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const contextElement = document.getElementById('context-display');
+                const statusElement = document.getElementById('status-display');
+                
+                if (contextElement) {
+                    contextElement.textContent = data.current_context || 'Not Set';
+                }
+                
+                if (statusElement) {
+                    if (data.healthy) {
+                        statusElement.textContent = 'Connected';
+                        statusElement.className = 'detail-value healthy';
+                    } else {
+                        statusElement.textContent = 'Disconnected';
+                        statusElement.className = 'detail-value error';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to update context:', error);
+            }
+        }
+        
+        async function checkAWSStatus() {
+            try {
+                const response = await fetch('/api/aws/status');
+                const data = await response.json();
+                
+                const statusElement = document.getElementById('aws-status-value');
+                if (statusElement) {
+                    if (data.authenticated) {
+                        statusElement.textContent = '✅ Active';
+                        statusElement.className = 'status-value healthy';
+                    } else {
+                        statusElement.textContent = '❌ Not Auth';
+                        statusElement.className = 'status-value error';
+                    }
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('aws-status-value');
+                if (statusElement) {
+                    statusElement.textContent = '❌ Error';
+                    statusElement.className = 'status-value error';
+                }
+            }
+        }
+        
+        async function checkGCPStatus() {
+            try {
+                const response = await fetch('/api/gcp/status');
+                const data = await response.json();
+                
+                const statusElement = document.getElementById('gcp-status-value');
+                if (statusElement) {
+                    if (data.authenticated) {
+                        statusElement.textContent = '✅ Active';
+                        statusElement.className = 'status-value healthy';
+                    } else {
+                        statusElement.textContent = '❌ Not Auth';
+                        statusElement.className = 'status-value error';
+                    }
+                }
+            } catch (error) {
+                const statusElement = document.getElementById('gcp-status-value');
+                if (statusElement) {
+                    statusElement.textContent = '❌ Error';
+                    statusElement.className = 'status-value error';
+                }
+            }
+        }
+        
+        function updateRealStatus() {
+            checkKubectlStatus();
+            checkClusterStatus();
+            
+            // Update AWS and GCP status if features are available
+            if (window.APEX_FEATURES.available_features.includes('aws_sso')) {
+                checkAWSStatus();
+            }
+            
+            if (window.APEX_FEATURES.available_features.includes('gcp_auth')) {
+                checkGCPStatus();
+            }
+        }
+        
+        // Environment switcher
+        function showEnvironmentSwitcher() {
+            // Show environment switcher modal or inline switcher
+            console.log('Environment switcher requested');
+        }
+        
+        function switchEnvironment(env) {
+            console.log('Switching to environment:', env);
+            
+            // Update active button
+            document.querySelectorAll('.env-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // This should integrate with real kubectl context switching
+            updateRealStatus();
+        }
+        
+        // Environment switching with feature awareness
+        function initEnvironmentSwitching() {
+            // Only enable environment switching if user has appropriate features
+            const envToggles = document.querySelectorAll('.env-toggle');
+            envToggles.forEach(toggle => {
+                if (!window.APEX_FEATURES.available_features.includes('system_status')) {
+                    toggle.disabled = true;
+                    toggle.title = 'Feature locked';
+                }
+            });
+        }
+        
+        // Enhanced upgrade prompt function
+        function showUpgradePrompt(featureName) {
+            // Implementation moved to components/features/gcp/kiali_dashboard.html
+            // This ensures consistent upgrade prompts across all components
+            console.log(`Upgrade prompt requested for feature: ${featureName}`);
+        }
+        
+        // Dynamic panel behavior based on tab selection
+        function updatePanelBehavior(activeTab) {
+            const content = document.querySelector('.apex-content');
+            if (activeTab === 'terminal' || activeTab === 'logs') {
+                content.classList.add('terminal-active');
+            } else {
+                content.classList.remove('terminal-active');
+            }
+        }
+        
+        // Tab switching with feature awareness
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.tab-btn:not(.locked)')) {
+                const tabName = e.target.getAttribute('data-tab');
+                updatePanelBehavior(tabName);
+            }
+        });
+    </script>
+</body>
+</html>

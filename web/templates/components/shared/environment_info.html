@@ -1,0 +1,313 @@
+<!-- Environment Info Component -->
+<div class="environment-info">
+    <!-- Current Environment Status -->
+    <div class="env-section">
+        <h4 class="env-title">🌍 Current Environment</h4>
+        <div class="env-details">
+            <div class="env-item">
+                <span class="env-label">Active:</span>
+                <span class="env-value" id="current-env">dev</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">Cloud:</span>
+                <span class="env-value" id="current-cloud">aws</span>
+            </div>
+            <div class="env-item">
+                <span class="env-label">Region:</span>
+                <span class="env-value" id="current-region">us-west-2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Resources (Always Available) -->
+    <div class="env-section">
+        <h4 class="env-title">💻 System Info</h4>
+        <div class="system-stats">
+            <div class="stat-item">
+                <span class="stat-icon">🧠</span>
+                <div class="stat-details">
+                    <div class="stat-label">Memory</div>
+                    <div class="stat-value" id="memory-usage">Loading...</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">💾</span>
+                <div class="stat-details">
+                    <div class="stat-label">Disk</div>
+                    <div class="stat-value" id="disk-usage">Loading...</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">⚡</span>
+                <div class="stat-details">
+                    <div class="stat-label">CPU</div>
+                    <div class="stat-value" id="cpu-usage">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network Status (Always Available) -->
+    <div class="env-section">
+        <h4 class="env-title">🌐 Network</h4>
+        <div class="network-status">
+            <div class="network-item">
+                <span class="network-indicator" id="internet-status">●</span>
+                <span class="network-label">Internet</span>
+                <span class="network-value" id="internet-value">checking...</span>
+            </div>
+            <div class="network-item">
+                <span class="network-indicator" id="dns-status">●</span>
+                <span class="network-label">DNS</span>
+                <span class="network-value" id="dns-value">checking...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Connections (Trial+ Feature) -->
+    <div class="env-section {{ 'locked' if not has_feature('active_monitoring') else '' }}">
+        <h4 class="env-title">
+            🔗 Active Connections
+            {% if not has_feature('active_monitoring') %}
+                <span class="tier-requirement">🆓 Trial</span>
+            {% endif %}
+        </h4>
+        {% if has_feature('active_monitoring') %}
+            <div class="active-connections" id="active-connections-list">
+                <!-- Active connections will be populated here -->
+                <div class="connection-item placeholder">
+                    <span class="connection-status ready">●</span>
+                    <span class="connection-info">No active connections</span>
+                </div>
+            </div>
+        {% else %}
+            <div class="feature-overlay locked mini">
+                <div class="lock-message">
+                    <span class="lock-icon">🔒</span>
+                    <span class="lock-text">Connection monitoring requires Trial</span>
+                    <button class="upgrade-btn mini" onclick="showUpgradePrompt('active_monitoring')">Start Trial</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="env-section">
+        <h4 class="env-title">⚡ Quick Actions</h4>
+        <div class="quick-actions">
+            <button class="action-btn" onclick="refreshSystemInfo()" title="Refresh system information">
+                🔄 Refresh
+            </button>
+            <button class="action-btn" onclick="showSystemLogs()" title="View system logs">
+                📋 Logs
+            </button>
+            <button class="action-btn {{ 'locked' if not has_feature('system_diagnostics') else '' }}" 
+                    onclick="{{ 'showUpgradePrompt(\'system_diagnostics\')' if not has_feature('system_diagnostics') else 'runDiagnostics()' }}" 
+                    title="{{ 'Premium feature' if not has_feature('system_diagnostics') else 'Run system diagnostics' }}">
+                {% if not has_feature('system_diagnostics') %}🔒{% endif %} 🔍 Diagnose
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Environment info functionality
+let systemInfoInterval;
+
+// Initialize system monitoring
+document.addEventListener('DOMContentLoaded', function() {
+    refreshSystemInfo();
+    checkNetworkStatus();
+    
+    // Update system info every 30 seconds
+    systemInfoInterval = setInterval(refreshSystemInfo, 30000);
+    
+    // Update network status every 10 seconds
+    setInterval(checkNetworkStatus, 10000);
+    
+    // Load active connections if available
+    {% if has_feature('active_monitoring') %}
+        loadActiveConnections();
+        setInterval(loadActiveConnections, 15000);
+    {% endif %}
+});
+
+// System info functions
+async function refreshSystemInfo() {
+    try {
+        // Get system resource usage (mock data for now)
+        updateResourceUsage();
+        
+        // Update environment info
+        updateEnvironmentInfo();
+        
+    } catch (error) {
+        console.error('Failed to refresh system info:', error);
+    }
+}
+
+function updateResourceUsage() {
+    // Mock system resource data (in a real app, this would come from the backend)
+    const memoryUsage = Math.floor(Math.random() * 40) + 30; // 30-70%
+    const diskUsage = Math.floor(Math.random() * 30) + 20; // 20-50%
+    const cpuUsage = Math.floor(Math.random() * 50) + 10; // 10-60%
+    
+    document.getElementById('memory-usage').textContent = `${memoryUsage}%`;
+    document.getElementById('disk-usage').textContent = `${diskUsage}%`;
+    document.getElementById('cpu-usage').textContent = `${cpuUsage}%`;
+}
+
+function updateEnvironmentInfo() {
+    // Get current environment from page state
+    const activeEnvBtn = document.querySelector('.env-toggle.active');
+    const activeCloudBtn = document.querySelector('.cloud-toggle.active');
+    
+    if (activeEnvBtn) {
+        document.getElementById('current-env').textContent = activeEnvBtn.getAttribute('data-env') || 'dev';
+    }
+    
+    if (activeCloudBtn) {
+        document.getElementById('current-cloud').textContent = activeCloudBtn.getAttribute('data-cloud') || 'aws';
+        
+        // Update region based on cloud provider
+        const regions = {
+            aws: 'us-west-2',
+            gcp: 'us-central1'
+        };
+        document.getElementById('current-region').textContent = regions[activeCloudBtn.getAttribute('data-cloud')] || 'us-west-2';
+    }
+}
+
+async function checkNetworkStatus() {
+    // Check internet connectivity
+    try {
+        const response = await fetch('/api/status', { 
+            method: 'GET',
+            timeout: 5000 
+        });
+        
+        const internetStatus = document.getElementById('internet-status');
+        const internetValue = document.getElementById('internet-value');
+        
+        if (response.ok) {
+            internetStatus.className = 'network-indicator connected';
+            internetValue.textContent = 'connected';
+        } else {
+            internetStatus.className = 'network-indicator warning';
+            internetValue.textContent = 'limited';
+        }
+    } catch (error) {
+        const internetStatus = document.getElementById('internet-status');
+        const internetValue = document.getElementById('internet-value');
+        internetStatus.className = 'network-indicator error';
+        internetValue.textContent = 'offline';
+    }
+    
+    // Check DNS (simplified check)
+    const dnsStatus = document.getElementById('dns-status');
+    const dnsValue = document.getElementById('dns-value');
+    
+    // Assume DNS is working if internet is working
+    const internetWorking = document.getElementById('internet-status').classList.contains('connected');
+    if (internetWorking) {
+        dnsStatus.className = 'network-indicator connected';
+        dnsValue.textContent = 'healthy';
+    } else {
+        dnsStatus.className = 'network-indicator warning';
+        dnsValue.textContent = 'slow';
+    }
+}
+
+{% if has_feature('active_monitoring') %}
+async function loadActiveConnections() {
+    try {
+        // This would fetch from your API in a real implementation
+        const connections = await mockGetActiveConnections();
+        
+        const container = document.getElementById('active-connections-list');
+        container.innerHTML = '';
+        
+        if (connections.length === 0) {
+            container.innerHTML = `
+                <div class="connection-item placeholder">
+                    <span class="connection-status ready">●</span>
+                    <span class="connection-info">No active connections</span>
+                </div>
+            `;
+        } else {
+            connections.forEach(conn => {
+                const item = document.createElement('div');
+                item.className = 'connection-item';
+                item.innerHTML = `
+                    <span class="connection-status ${conn.status}">●</span>
+                    <span class="connection-info">${conn.name}: ${conn.target}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load active connections:', error);
+    }
+}
+
+// Mock function - replace with real API call
+async function mockGetActiveConnections() {
+    // Simulate some active connections
+    const mockConnections = [];
+    
+    // Check if there are any active port forwards from our terminal
+    const activeForwards = document.querySelectorAll('.active-forward');
+    activeForwards.forEach(forward => {
+        const info = forward.querySelector('.forward-info').textContent;
+        mockConnections.push({
+            name: 'Port Forward',
+            target: info,
+            status: 'connected'
+        });
+    });
+    
+    return mockConnections;
+}
+{% endif %}
+
+// Quick action functions
+function showSystemLogs() {
+    // Add a command to the terminal to show system logs
+    executeCommand('tail -f /var/log/system.log | head -20');
+}
+
+{% if has_feature('system_diagnostics') %}
+function runDiagnostics() {
+    executeCommand('echo "Running system diagnostics..." && uname -a && df -h && free -h');
+}
+{% endif %}
+
+// Environment switching functions (called from header)
+function switchEnvironment(env) {
+    // Update active environment button
+    document.querySelectorAll('.env-toggle').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-env="${env}"]`).classList.add('active');
+    
+    // Update environment display
+    updateEnvironmentInfo();
+    
+    // Broadcast environment change
+    console.log(`Environment switched to: ${env}`);
+}
+
+function switchCloud(cloud) {
+    // Update active cloud button
+    document.querySelectorAll('.cloud-toggle').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-cloud="${cloud}"]`).classList.add('active');
+    
+    // Update environment display
+    updateEnvironmentInfo();
+    
+    // Broadcast cloud change
+    console.log(`Cloud provider switched to: ${cloud}`);
+}
+</script>

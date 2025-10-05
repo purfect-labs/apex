@@ -1,0 +1,403 @@
+/* APEX Panel Components - Compact Design */
+
+.cyber-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.cyber-panel:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+    border-color: var(--neon-green);
+}
+
+.cyber-panel.status-healthy {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+}
+
+.cyber-panel.status-warning {
+    border-color: var(--neon-yellow);
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.2);
+}
+
+.cyber-panel.status-error {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 15px rgba(255, 0, 128, 0.2);
+}
+
+.panel-title {
+    color: var(--neon-blue);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    text-shadow: 0 0 10px var(--neon-blue);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Command Categories */
+.command-category {
+    margin-bottom: 1.5rem;
+}
+
+.category-title {
+    color: var(--neon-purple);
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.command-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+
+/* Service Status */
+.service-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.service-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem;
+    background: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.8rem;
+}
+
+.service-name {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.service-status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+}
+
+/* Status-based animations */
+.status-healthy {
+    animation: pulse-healthy 2s ease-in-out infinite;
+}
+
+@keyframes pulse-healthy {
+    0%, 100% {
+        border-color: var(--neon-green);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    50% {
+        border-color: var(--neon-green);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+    }
+}
+
+/* Scrollable content areas */
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.panel-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-cyan);
+}
+
+/* Side Panel Layout */
+.side-panel {
+    position: fixed;
+    top: 80px; /* Below header */
+    bottom: 0;
+    width: 60px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    z-index: 50;
+    overflow: hidden;
+}
+
+.left-panel {
+    left: 0;
+    border-right: 2px solid var(--neon-cyan);
+    box-shadow: 2px 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.right-panel {
+    right: 0;
+    border-left: 2px solid var(--neon-cyan);
+    box-shadow: -2px 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.side-panel.expanded {
+    width: 300px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+/* Panel Content States */
+.panel-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem 0;
+}
+
+.panel-icon-vertical {
+    font-size: 1.5rem;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
+
+.side-panel.expanded .panel-compact {
+    display: none;
+}
+
+.panel-expanded {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.side-panel.expanded .panel-expanded {
+    display: flex;
+}
+
+/* Panel Header */
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-icon {
+    font-size: 1.2rem;
+}
+
+.panel-title {
+    color: var(--neon-blue);
+    font-size: 1rem;
+    font-weight: 600;
+    text-shadow: 0 0 8px var(--neon-blue);
+}
+
+/* Status Groups in Right Panel */
+.status-group {
+    margin-bottom: 1.5rem;
+}
+
+.status-category {
+    font-size: 0.8rem;
+    color: var(--neon-purple);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.feature-lock {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.feature-lock:hover {
+    color: var(--neon-yellow);
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.status-item:hover {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
+}
+
+.status-item.locked {
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+.status-item.locked:hover {
+    border-color: var(--neon-yellow);
+    box-shadow: 0 0 8px rgba(255, 255, 0, 0.2);
+}
+
+.status-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.status-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.status-value.locked {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+/* Cloud Provider Buttons */
+.cloud-selector {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.cloud-btn {
+    background: var(--surface-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+}
+
+.cloud-btn.active {
+    background: var(--neon-cyan);
+    color: var(--dark-bg);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+.cloud-btn:hover:not(.active) {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.cloud-icon {
+    font-size: 0.9rem;
+}
+
+/* Metric Bars */
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    min-width: 50px;
+}
+
+.metric-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--surface-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.metric-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.metric-value {
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: right;
+}
+
+/* Command Group in Left Panel */
+.command-group {
+    margin-bottom: 1.5rem;
+}
+
+.cmd-btn {
+    background: var(--surface-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.cmd-btn:hover {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
+}
+
+.cmd-icon {
+    font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .side-panel.expanded {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .side-panel {
+        display: none; /* Hide on mobile for now */
+    }
+}

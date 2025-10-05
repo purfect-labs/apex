@@ -1,0 +1,159 @@
+/* APEX Terminal Component - Bottom Center Focus */
+
+.terminal-container {
+    background: var(--dark-bg);
+    border: 1px solid var(--neon-green);
+    border-radius: 6px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.control-dot.red { background: #ff5f57; }
+.control-dot.yellow { background: #ffbd2e; }
+.control-dot.green { background: #28ca42; }
+
+.terminal-output {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-height: 300px; /* Ensure scrolling for long output */
+}
+
+.terminal-line {
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    word-wrap: break-word;
+}
+
+.terminal-prompt {
+    color: var(--neon-green);
+    flex-shrink: 0;
+}
+
+.terminal-command {
+    color: var(--neon-cyan);
+}
+
+.terminal-success {
+    color: var(--neon-green);
+}
+
+.terminal-error {
+    color: var(--neon-pink);
+}
+
+.terminal-warning {
+    color: var(--neon-yellow);
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    padding: 0.3rem 1rem;
+    background: var(--dark-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.2rem 0.5rem;
+    outline: none;
+    margin-left: 0.5rem;
+}
+
+.terminal-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* Terminal animations */
+@keyframes terminal-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.cursor {
+    animation: terminal-blink 1s infinite;
+}
+
+/* Tab system for terminal */
+.tab-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: var(--neon-purple);
+    color: white;
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 10px rgba(153, 69, 255, 0.5);
+}
+
+.tab-btn:hover:not(.active) {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: flex;
+    flex-direction: column;
+}

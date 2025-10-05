@@ -1,0 +1,589 @@
+/* Compact Layout Styles for APEX */
+
+/* Compact Header Styles */
+.apex-header.compact {
+    height: 50px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f0f0f;
+    border-bottom: 2px solid #007acc;
+    position: relative;
+    z-index: 1000;
+}
+
+.apex-header.compact .apex-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #007acc;
+}
+
+/* Circular Profile */
+.profile-circle {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007acc, #0066aa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0, 122, 204, 0.5);
+}
+
+.avatar-initial {
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+}
+
+/* Profile Hover Panel */
+.profile-hover-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 300px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    overflow: hidden;
+}
+
+.profile-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #007acc, #0066aa);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-avatar-large {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-initial-large {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.profile-role {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.profile-details {
+    padding: 16px 20px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.detail-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.detail-value.healthy {
+    color: #4CAF50;
+}
+
+.detail-value.error {
+    color: #f44336;
+}
+
+.profile-actions {
+    padding: 16px 20px;
+    background: #0f0f0f;
+    display: flex;
+    gap: 8px;
+}
+
+.profile-action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.profile-action-btn.primary {
+    background: #007acc;
+    color: white;
+}
+
+.profile-action-btn.primary:hover {
+    background: #0066aa;
+}
+
+.profile-action-btn.secondary {
+    background: #2a2a2a;
+    color: #ccc;
+}
+
+.profile-action-btn.secondary:hover {
+    background: #333;
+    color: #fff;
+}
+
+.btn-icon {
+    font-size: 12px;
+}
+
+/* New Layout Styles */
+.apex-layout {
+    display: flex;
+    height: calc(100vh - 50px);
+    position: relative;
+}
+
+/* Floating Panel Buttons */
+.side-panel {
+    position: absolute;
+    top: 10px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #001122, #003366);
+    border: 2px solid #00ffaa;
+    border-radius: 8px;
+    z-index: 200;
+    transition: all 0.4s ease;
+    overflow: visible;
+    box-shadow: 0 0 20px rgba(0, 255, 170, 0.3);
+}
+
+.left-panel {
+    left: 10px;
+}
+
+.right-panel {
+    right: 10px;
+}
+
+.side-panel:hover {
+    z-index: 300;
+    box-shadow: 0 0 30px rgba(0, 255, 170, 0.6);
+    transform: scale(1.05);
+}
+
+/* Panel States */
+.panel-compact {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    position: relative;
+    z-index: 101;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.panel-compact:hover {
+    background: #1a1a1a;
+}
+
+.panel-icon-vertical {
+    font-size: 24px;
+    color: #007acc;
+    transition: all 0.3s ease;
+}
+
+.panel-compact:hover .panel-icon-vertical {
+    color: #00aaff;
+    transform: scale(1.1);
+}
+
+.panel-label-vertical {
+    display: none;
+}
+
+.panel-expanded {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.8);
+    z-index: 102;
+}
+
+.right-panel .panel-expanded {
+    left: auto;
+    right: 0;
+    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.side-panel.expanded .panel-compact {
+    display: none;
+}
+
+.side-panel.expanded .panel-expanded {
+    display: block;
+}
+
+.panel-header {
+    padding: 16px 20px;
+    background: #007acc;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.panel-content {
+    padding: 16px;
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+/* Command Groups */
+.command-group {
+    margin-bottom: 20px;
+}
+
+.command-category {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.cmd-btn {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+}
+
+.cmd-btn:hover {
+    background: #333;
+    border-color: #007acc;
+    color: #fff;
+}
+
+.cmd-icon {
+    font-size: 14px;
+}
+
+/* Status Groups */
+.status-group {
+    margin-bottom: 20px;
+}
+
+.status-category {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.status-item:last-child {
+    border-bottom: none;
+}
+
+.status-label {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.status-value {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.status-value.healthy {
+    background: #1a4a2d;
+    color: #4CAF50;
+}
+
+.status-value.error {
+    background: #4a1a1a;
+    color: #f44336;
+}
+
+/* Environment Switcher */
+.env-switcher {
+    display: flex;
+    gap: 4px;
+}
+
+.env-btn {
+    flex: 1;
+    padding: 4px 6px;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #888;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.env-btn.active {
+    background: #007acc;
+    color: white;
+    border-color: #007acc;
+}
+
+.env-btn:hover:not(.active) {
+    background: #333;
+    color: #ccc;
+}
+
+/* Metric Bars */
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.metric-label {
+    font-size: 11px;
+    color: #888;
+    width: 50px;
+}
+
+.metric-bar {
+    flex: 1;
+    height: 8px;
+    background: #2a2a2a;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.metric-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #FFA726, #f44336);
+    transition: width 0.3s ease;
+}
+
+.metric-value {
+    font-size: 11px;
+    color: #fff;
+    width: 30px;
+    text-align: right;
+}
+
+/* Center Content */
+.center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    order: 2;
+}
+
+.terminal-section {
+    height: 50%;
+    max-height: 50%;
+    min-height: 50%;
+    border-bottom: 2px solid #2a2a2a;
+    background: #0f0f0f;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-section {
+    height: 50%;
+    max-height: 50%;
+    min-height: 50%;
+    background: #0f0f0f;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Override any conflicting styles */
+.apex-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Terminal specific overrides for compact layout */
+.terminal-section .terminal-container {
+    height: 100%;
+    max-height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-section .terminal-output {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100% - 60px); /* Account for input area */
+}
+
+.terminal-section .terminal-input-container {
+    flex-shrink: 0;
+    height: auto;
+    min-height: 40px;
+}
+
+/* Dashboard section specific overrides */
+.dashboard-section .dashboard-container {
+    height: 100%;
+    max-height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-section .dashboard-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .side-panel {
+        width: 50px;
+    }
+    
+    .panel-expanded {
+        width: 240px;
+    }
+    
+    .profile-hover-panel {
+        width: 260px;
+    }
+}
+
+@media (max-width: 768px) {
+    .apex-layout {
+        flex-direction: column;
+    }
+    
+    .side-panel {
+        width: 100%;
+        height: 50px;
+        border-right: none;
+        border-bottom: 1px solid #2a2a2a;
+    }
+    
+    .panel-compact {
+        flex-direction: row;
+        justify-content: center;
+        padding: 8px 0;
+    }
+    
+    .panel-label-vertical {
+        writing-mode: horizontal-tb;
+        margin-left: 8px;
+    }
+    
+    .panel-expanded {
+        top: 50px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 200px;
+    }
+    
+    .center-content {
+        order: 1;
+    }
+}

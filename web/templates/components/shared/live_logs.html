@@ -1,0 +1,274 @@
+<!-- Live Logs Component - Trial+ Feature -->
+<div class="live-logs-container" style="flex: 1; display: flex; flex-direction: column;">
+    <!-- Live Logs Header -->
+    <div class="logs-header">
+        <div class="logs-controls">
+            <select id="log-source" class="log-select">
+                <option value="all">All Sources</option>
+                <option value="pods">Pod Logs</option>
+                <option value="events">Cluster Events</option>
+                <option value="audit">Audit Logs</option>
+            </select>
+            <input type="text" id="log-filter" placeholder="Filter logs..." class="log-filter-input">
+            <button class="log-btn" onclick="startLogStreaming()" id="stream-toggle" title="Start/Stop streaming">
+                ▶️ Start
+            </button>
+            <button class="log-btn" onclick="clearLiveLogs()" title="Clear logs">
+                🗑️ Clear
+            </button>
+        </div>
+        <div class="logs-status">
+            <span class="status-indicator" id="stream-status">⭕</span>
+            <span class="status-text" id="stream-text">Ready</span>
+            <span class="log-count" id="log-count">0 lines</span>
+        </div>
+    </div>
+    
+    <!-- Live Logs Content -->
+    <div class="logs-content" style="flex: 1; overflow-y: auto; background: #1a1a1a; color: #00ff00; font-family: 'Courier New', monospace; padding: 10px; font-size: 12px;">
+        <div id="live-logs-output">
+            <div class="log-line info">
+                <span class="log-timestamp">[10:00:00]</span>
+                <span class="log-source">[SYSTEM]</span>
+                <span class="log-message">Live log streaming ready - Trial+ feature active ⚡</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live Logs functionality
+let isStreaming = false;
+let logStreamInterval;
+let logCount = 0;
+
+function startLogStreaming() {
+    const toggleBtn = document.getElementById('stream-toggle');
+    const statusIndicator = document.getElementById('stream-status');
+    const statusText = document.getElementById('stream-text');
+    
+    if (isStreaming) {
+        // Stop streaming
+        clearInterval(logStreamInterval);
+        isStreaming = false;
+        toggleBtn.innerHTML = '▶️ Start';
+        statusIndicator.textContent = '⭕';
+        statusText.textContent = 'Stopped';
+    } else {
+        // Start streaming
+        isStreaming = true;
+        toggleBtn.innerHTML = '⏸️ Stop';
+        statusIndicator.textContent = '🟢';
+        statusText.textContent = 'Streaming';
+        
+        // Simulate log streaming
+        logStreamInterval = setInterval(simulateLogEntry, 2000);
+        
+        addLogEntry('SYSTEM', 'Log streaming started', 'info');
+    }
+}
+
+function addLogEntry(source, message, level = 'info') {
+    const logsOutput = document.getElementById('live-logs-output');
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const logLine = document.createElement('div');
+    logLine.className = `log-line ${level}`;
+    logLine.innerHTML = `
+        <span class="log-timestamp">[${timestamp}]</span>
+        <span class="log-source">[${source}]</span>
+        <span class="log-message">${message}</span>
+    `;
+    
+    // Apply filter if any
+    const filter = document.getElementById('log-filter').value.toLowerCase();
+    if (filter && !message.toLowerCase().includes(filter) && !source.toLowerCase().includes(filter)) {
+        logLine.style.display = 'none';
+    }
+    
+    logsOutput.appendChild(logLine);
+    
+    // Auto-scroll to bottom
+    logsOutput.scrollTop = logsOutput.scrollHeight;
+    
+    // Update count
+    logCount++;
+    document.getElementById('log-count').textContent = `${logCount} lines`;
+    
+    // Keep only last 100 entries for performance
+    if (logsOutput.children.length > 100) {
+        logsOutput.removeChild(logsOutput.firstChild);
+    }
+}
+
+function simulateLogEntry() {
+    const sources = ['PODS', 'KUBE-SYSTEM', 'ISTIO', 'APP', 'INGRESS'];
+    const messages = [
+        'Pod kiali-gateway-xyz started successfully',
+        'Service endpoint updated: health check passing',
+        'Istio proxy sidecar injected',
+        'New deployment rollout completed',
+        'Resource quota within limits',
+        'Network policy applied',
+        'ConfigMap updated successfully',
+        'PVC bound to persistent volume',
+        'Ingress rule updated',
+        'Certificate rotation completed'
+    ];
+    const levels = ['info', 'warning', 'error'];
+    
+    const source = sources[Math.floor(Math.random() * sources.length)];
+    const message = messages[Math.floor(Math.random() * messages.length)];
+    const level = levels[Math.floor(Math.random() * levels.length)];
+    
+    addLogEntry(source, message, level);
+}
+
+function clearLiveLogs() {
+    document.getElementById('live-logs-output').innerHTML = `
+        <div class="log-line info">
+            <span class="log-timestamp">[${new Date().toLocaleTimeString()}]</span>
+            <span class="log-source">[SYSTEM]</span>
+            <span class="log-message">Logs cleared</span>
+        </div>
+    `;
+    logCount = 0;
+    document.getElementById('log-count').textContent = '0 lines';
+}
+
+// Filter logs in real-time
+document.getElementById('log-filter')?.addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const logLines = document.querySelectorAll('.log-line');
+    
+    logLines.forEach(line => {
+        const message = line.querySelector('.log-message').textContent.toLowerCase();
+        const source = line.querySelector('.log-source').textContent.toLowerCase();
+        
+        if (!filter || message.includes(filter) || source.includes(filter)) {
+            line.style.display = 'flex';
+        } else {
+            line.style.display = 'none';
+        }
+    });
+});
+
+// Source filter
+document.getElementById('log-source')?.addEventListener('change', function() {
+    const selectedSource = this.value;
+    
+    if (selectedSource === 'all') {
+        // Show all logs
+        document.querySelectorAll('.log-line').forEach(line => {
+            line.style.display = 'flex';
+        });
+    } else {
+        // Filter by source type
+        document.querySelectorAll('.log-line').forEach(line => {
+            const source = line.querySelector('.log-source').textContent.toLowerCase();
+            
+            if (selectedSource === 'pods' && (source.includes('pod') || source.includes('app'))) {
+                line.style.display = 'flex';
+            } else if (selectedSource === 'events' && (source.includes('kube') || source.includes('system'))) {
+                line.style.display = 'flex';
+            } else if (selectedSource === 'audit' && source.includes('audit')) {
+                line.style.display = 'flex';
+            } else if (selectedSource !== 'all') {
+                line.style.display = 'none';
+            }
+        });
+    }
+});
+
+// Auto-start streaming after a brief delay to show it's working
+setTimeout(() => {
+    addLogEntry('INIT', 'Live logs component initialized - ready for streaming', 'info');
+}, 1000);
+</script>
+
+<style>
+.live-logs-container {
+    background: #0d1117;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+}
+
+.logs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #30363d;
+    background: #161b22;
+}
+
+.logs-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.log-select, .log-filter-input {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.log-btn {
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.log-btn:hover {
+    background: #2ea043;
+}
+
+.logs-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #8b949e;
+}
+
+.log-line {
+    display: flex;
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+
+.log-timestamp {
+    color: #7c3aed;
+    margin-right: 8px;
+}
+
+.log-source {
+    color: #06b6d4;
+    margin-right: 8px;
+    min-width: 80px;
+}
+
+.log-message {
+    color: #c9d1d9;
+}
+
+.log-line.warning .log-message {
+    color: #f59e0b;
+}
+
+.log-line.error .log-message {
+    color: #ef4444;
+}
+
+.log-line.info .log-message {
+    color: #10b981;
+}
+</style>

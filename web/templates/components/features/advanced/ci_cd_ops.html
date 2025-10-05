@@ -1,0 +1,403 @@
+<!-- CI/CD Operations Component - Premium Feature -->
+<div class="cicd-operations" data-feature="ci_cd_ops">
+    <h4 class="section-title">🔄 CI/CD Operations</h4>
+    
+    <!-- Git Operations -->
+    <div class="command-group">
+        <h5 class="group-title">Git Operations</h5>
+        <div class="command-buttons">
+            <button class="cmd-btn" data-cmd="git status" title="Check git status">
+                📊 Status
+            </button>
+            <button class="cmd-btn" data-cmd="git log --oneline -10" title="Recent commits">
+                📜 Log
+            </button>
+            <button class="cmd-btn" data-cmd="git branch -a" title="List all branches">
+                🌿 Branches
+            </button>
+            <button class="cmd-btn" data-cmd="git pull origin main" title="Pull latest changes">
+                ⬇️ Pull
+            </button>
+        </div>
+    </div>
+    
+    <!-- CI Pipeline Status -->
+    <div class="command-group">
+        <h5 class="group-title">Pipeline Status</h5>
+        <div class="pipeline-status-grid">
+            <div class="pipeline-card">
+                <div class="pipeline-header">
+                    <span class="pipeline-name">Development</span>
+                    <span class="pipeline-status success">✅ Passed</span>
+                </div>
+                <div class="pipeline-details">
+                    <div class="pipeline-info">Build #245 • 2m 30s</div>
+                    <button class="cmd-btn small" onclick="viewPipelineLogs('dev')">📋 Logs</button>
+                </div>
+            </div>
+            
+            <div class="pipeline-card">
+                <div class="pipeline-header">
+                    <span class="pipeline-name">Staging</span>
+                    <span class="pipeline-status running">🔄 Running</span>
+                </div>
+                <div class="pipeline-details">
+                    <div class="pipeline-info">Build #128 • 1m 45s</div>
+                    <button class="cmd-btn small" onclick="viewPipelineLogs('staging')">📋 Logs</button>
+                </div>
+            </div>
+            
+            <div class="pipeline-card">
+                <div class="pipeline-header">
+                    <span class="pipeline-name">Production</span>
+                    <span class="pipeline-status pending">⏳ Pending</span>
+                </div>
+                <div class="pipeline-details">
+                    <div class="pipeline-info">Build #89 • Awaiting approval</div>
+                    <button class="cmd-btn small primary" onclick="approvePipeline('prod')">✅ Approve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Deployment Operations -->
+    <div class="command-group">
+        <h5 class="group-title">Deployments</h5>
+        <div class="deployment-controls">
+            <select id="deployment-env" class="cmd-select">
+                <option value="dev">Development</option>
+                <option value="staging">Staging</option>
+                <option value="prod">Production</option>
+            </select>
+            
+            <div class="deployment-actions">
+                <button class="cmd-btn" onclick="checkDeploymentStatus()">
+                    📊 Status
+                </button>
+                <button class="cmd-btn warning" onclick="triggerDeployment()">
+                    🚀 Deploy
+                </button>
+                <button class="cmd-btn danger" onclick="rollbackDeployment()">
+                    ↩️ Rollback
+                </button>
+            </div>
+        </div>
+        
+        <div class="recent-deployments">
+            <h6>Recent Deployments</h6>
+            <div class="deployment-list">
+                <div class="deployment-item">
+                    <span class="deployment-version">v1.2.3</span>
+                    <span class="deployment-env">Production</span>
+                    <span class="deployment-time">2 hours ago</span>
+                    <span class="deployment-status success">✅</span>
+                </div>
+                <div class="deployment-item">
+                    <span class="deployment-version">v1.2.2</span>
+                    <span class="deployment-env">Staging</span>
+                    <span class="deployment-time">4 hours ago</span>
+                    <span class="deployment-status success">✅</span>
+                </div>
+                <div class="deployment-item">
+                    <span class="deployment-version">v1.2.1</span>
+                    <span class="deployment-env">Development</span>
+                    <span class="deployment-time">6 hours ago</span>
+                    <span class="deployment-status failed">❌</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Build Triggers -->
+    <div class="command-group">
+        <h5 class="group-title">Build Triggers</h5>
+        <div class="trigger-buttons">
+            <button class="cmd-btn primary" onclick="triggerBuild('dev')">
+                🔨 Build Dev
+            </button>
+            <button class="cmd-btn primary" onclick="triggerBuild('staging')">
+                🔨 Build Staging
+            </button>
+            <button class="cmd-btn primary" onclick="triggerE2ETests()">
+                🧪 Run E2E Tests
+            </button>
+            <button class="cmd-btn" onclick="runSecurityScan()">
+                🔒 Security Scan
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// CI/CD Operations functionality
+function viewPipelineLogs(env) {
+    executeCommand(`echo "Viewing pipeline logs for ${env} environment..."`);
+    
+    // Simulate pipeline logs
+    setTimeout(() => {
+        const logContent = `
+=== Pipeline Logs for ${env.toUpperCase()} ===
+✅ Checkout code from repository
+✅ Install dependencies (2m 15s)
+✅ Run unit tests (45s)
+✅ Build application (1m 30s)
+${env === 'staging' ? '🔄 Running integration tests...' : '✅ Integration tests passed'}
+${env === 'prod' ? '⏳ Awaiting manual approval' : ''}
+        `;
+        
+        // Add to terminal output
+        document.dispatchEvent(new CustomEvent('terminalOutput', {
+            detail: {
+                command: `pipeline-logs-${env}`,
+                output: logContent,
+                success: true
+            }
+        }));
+    }, 1000);
+}
+
+function approvePipeline(env) {
+    if (confirm(`Approve deployment to ${env.toUpperCase()} environment?`)) {
+        executeCommand(`echo "Approving pipeline for ${env} environment..."`);
+        
+        // Update UI to show approved status
+        setTimeout(() => {
+            const pipelineCard = document.querySelector(`[onclick="approvePipeline('${env}')"]`).closest('.pipeline-card');
+            const statusSpan = pipelineCard.querySelector('.pipeline-status');
+            statusSpan.className = 'pipeline-status running';
+            statusSpan.textContent = '🔄 Running';
+            
+            // Update button
+            const approveBtn = pipelineCard.querySelector('button.primary');
+            approveBtn.textContent = '📋 Logs';
+            approveBtn.className = 'cmd-btn small';
+            approveBtn.onclick = () => viewPipelineLogs(env);
+        }, 1000);
+    }
+}
+
+function checkDeploymentStatus() {
+    const env = document.getElementById('deployment-env').value;
+    executeCommand(`kubectl get deployments -n ${env} --show-labels`);
+}
+
+function triggerDeployment() {
+    const env = document.getElementById('deployment-env').value;
+    
+    if (confirm(`Trigger deployment to ${env.toUpperCase()} environment?`)) {
+        executeCommand(`echo "Triggering deployment to ${env}..."`);
+        
+        // Simulate deployment process
+        setTimeout(() => {
+            executeCommand(`kubectl apply -f deployments/${env}/`);
+        }, 2000);
+        
+        // Update deployment list
+        addDeploymentToHistory('v1.2.4', env, 'now', 'running');
+    }
+}
+
+function rollbackDeployment() {
+    const env = document.getElementById('deployment-env').value;
+    
+    if (confirm(`Rollback deployment in ${env.toUpperCase()} environment?`)) {
+        executeCommand(`kubectl rollout undo deployment/app -n ${env}`);
+    }
+}
+
+function triggerBuild(env) {
+    executeCommand(`echo "Triggering build for ${env} environment..."`);
+    
+    // Update pipeline status to show build in progress
+    const pipelineCards = document.querySelectorAll('.pipeline-card');
+    pipelineCards.forEach(card => {
+        const envName = card.querySelector('.pipeline-name').textContent.toLowerCase();
+        if (envName === env || (env === 'dev' && envName === 'development')) {
+            const statusSpan = card.querySelector('.pipeline-status');
+            statusSpan.className = 'pipeline-status running';
+            statusSpan.textContent = '🔄 Building';
+        }
+    });
+}
+
+function triggerE2ETests() {
+    executeCommand('echo "Starting end-to-end test suite..."');
+    
+    setTimeout(() => {
+        executeCommand('npx playwright test --reporter=line');
+    }, 1000);
+}
+
+function runSecurityScan() {
+    executeCommand('echo "Running security vulnerability scan..."');
+    
+    setTimeout(() => {
+        executeCommand('docker run --rm -v $(pwd):/app clair-scanner:latest');
+    }, 1000);
+}
+
+function addDeploymentToHistory(version, env, time, status) {
+    const deploymentList = document.querySelector('.deployment-list');
+    
+    const statusIcon = status === 'success' ? '✅' : status === 'failed' ? '❌' : '🔄';
+    
+    const newDeployment = document.createElement('div');
+    newDeployment.className = 'deployment-item';
+    newDeployment.innerHTML = `
+        <span class="deployment-version">${version}</span>
+        <span class="deployment-env">${env}</span>
+        <span class="deployment-time">${time}</span>
+        <span class="deployment-status ${status}">${statusIcon}</span>
+    `;
+    
+    deploymentList.insertBefore(newDeployment, deploymentList.firstChild);
+    
+    // Keep only last 5 deployments
+    if (deploymentList.children.length > 5) {
+        deploymentList.removeChild(deploymentList.lastChild);
+    }
+}
+
+// Simulate pipeline status updates
+setInterval(() => {
+    const runningPipelines = document.querySelectorAll('.pipeline-status.running');
+    runningPipelines.forEach(status => {
+        // Randomly complete some running pipelines
+        if (Math.random() < 0.3) {
+            status.className = 'pipeline-status success';
+            status.textContent = '✅ Passed';
+        }
+    });
+}, 10000); // Check every 10 seconds
+
+// Command execution for CI/CD features
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.cmd-btn[data-cmd]') && e.target.closest('[data-feature="ci_cd_ops"]')) {
+        const cmd = e.target.getAttribute('data-cmd');
+        executeCommand(cmd);
+    }
+});
+</script>
+
+<style>
+.cicd-operations {
+    padding: 15px;
+}
+
+.pipeline-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.pipeline-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.pipeline-name {
+    font-weight: bold;
+    color: #fff;
+}
+
+.pipeline-status.success {
+    color: #10b981;
+}
+
+.pipeline-status.running {
+    color: #f59e0b;
+}
+
+.pipeline-status.pending {
+    color: #6b7280;
+}
+
+.pipeline-status.failed {
+    color: #ef4444;
+}
+
+.pipeline-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pipeline-info {
+    font-size: 0.8em;
+    color: #9ca3af;
+}
+
+.deployment-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.deployment-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.recent-deployments {
+    margin-top: 20px;
+}
+
+.deployment-list {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.deployment-item {
+    display: grid;
+    grid-template-columns: 80px 100px 120px 30px;
+    gap: 15px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.85em;
+}
+
+.deployment-item:last-child {
+    border-bottom: none;
+}
+
+.deployment-version {
+    font-weight: bold;
+    color: #06b6d4;
+}
+
+.deployment-env {
+    color: #8b5cf6;
+}
+
+.deployment-time {
+    color: #6b7280;
+    font-size: 0.8em;
+}
+
+.trigger-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cmd-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+</style>

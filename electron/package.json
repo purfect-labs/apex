@@ -1,0 +1,79 @@
+{
+  "name": "apex-native",
+  "version": "3.0.0",
+  "description": "APEX Command Center - Native macOS Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "pack": "electron-builder --dir"
+  },
+  "author": "APEX",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.apex.commandcenter",
+    "productName": "APEX Command Center",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "../web/**/*",
+      "../config/**/*",
+      "../bin/**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "../venv",
+        "to": "Resources/venv",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../apex_app.py",
+        "to": "Resources/apex_app.py"
+      },
+      {
+        "from": "../requirements.txt", 
+        "to": "Resources/requirements.txt"
+      }
+    ],
+    "mac": {
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        }
+      ]
+    },
+    "dmg": {
+      "title": "APEX Command Center",
+      "background": "assets/dmg-background.png",
+      "window": {
+        "width": 600,
+        "height": 400
+      },
+      "contents": [
+        {
+          "x": 150,
+          "y": 200,
+          "type": "file"
+        },
+        {
+          "x": 450,
+          "y": 200,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

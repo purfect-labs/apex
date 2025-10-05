@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX - Development Command Center</title>
+    <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛠️ APEX Development Command Center</h1>
+            <div class="status-bar">
+                <div id="config-status" class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking configuration...</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="section">
+                    <h3>🌍 Environment Selection</h3>
+                    <div class="form-group">
+                        <label for="cloud-select">Cloud Provider:</label>
+                        <select id="cloud-select">
+                            <option value="aws">AWS</option>
+                            <option value="gcp" disabled>GCP (Coming Soon)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="env-select">Environment:</label>
+                        <select id="env-select">
+                            <option value="dev">Development</option>
+                            <option value="stage">Staging</option>
+                            <option value="prod">Production</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🔐 Authentication</h3>
+                    <button id="sso-auth-btn" class="btn btn-primary">
+                        <span class="btn-icon">🔑</span>
+                        Check AWS SSO Status
+                    </button>
+                    <div id="sso-status" class="action-status"></div>
+                    <div class="connection-info">
+                        <p><strong>Note:</strong> AWS SSO authentication must be done on your host machine first.</p>
+                        <p>Run <code>./run-web.sh</code> for automatic preflight checks.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🗄️ Database Connection</h3>
+                    <button id="db-connect-btn" class="btn btn-success">
+                        <span class="btn-icon">🔗</span>
+                        Connect to Database
+                    </button>
+                    <div id="db-status" class="action-status"></div>
+                    <div class="connection-info">
+                        <p><strong>Connection will be available at:</strong></p>
+                        <code id="psql-command">psql -h 127.0.0.1 -p 15432 -U [username] [database]</code>
+                        <br><br>
+                        <button id="psql-connect-btn" class="btn btn-secondary">
+                            <span class="btn-icon">💻</span>
+                            Connect in Terminal
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>📋 Quick Commands</h3>
+                    <div class="quick-commands">
+                        <button id="quick-psql-btn" class="btn btn-secondary">
+                            Connect psql
+                        </button>
+                        <button class="btn btn-secondary" onclick="sendToTerminal('apex --help')">
+                            APEX Help
+                        </button>
+                        <button id="aws-identity-btn" class="btn btn-secondary">
+                            <span class="btn-icon">🔑</span>
+                            Verify AWS Identity
+                        </button>
+                        <button class="btn btn-secondary" onclick="sendToTerminal('clear')">
+                            Clear Terminal
+                        </button>
+                    </div>
+                    <div id="identity-status" class="action-status"></div>
+                </div>
+            </div>
+
+            <div class="terminal-panel">
+                <div class="terminal-header">
+                    <h3>💻 Terminal</h3>
+                    <div class="terminal-controls">
+                        <button id="terminal-clear" class="btn btn-sm">Clear</button>
+                        <button id="terminal-reset" class="btn btn-sm">Reset</button>
+                    </div>
+                </div>
+                <div id="terminal" class="terminal-container"></div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <p>APEX Web UI - Wrapper for your existing CLI workflow</p>
+                <div class="footer-links">
+                    <a href="#" onclick="toggleLogs()">View Logs</a>
+                    <span>|</span>
+                    <a href="https://heliumup.atlassian.net/wiki/spaces/DevX/pages/739966984/APEX" target="_blank">Documentation</a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Logs modal -->
+        <div id="logs-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>System Logs</h3>
+                    <button onclick="toggleLogs()" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <pre id="logs-content"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

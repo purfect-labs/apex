@@ -1,0 +1,239 @@
+<!-- Terminal Component - Always Available -->
+<div class="terminal-container" style="flex: 1; display: flex; flex-direction: column;">
+    <!-- Terminal Header -->
+    <div class="terminal-header">
+        <div class="terminal-controls">
+            <button class="terminal-control-btn clear" onclick="clearTerminal()" title="Clear terminal">
+                🗑️ Clear
+            </button>
+            <button class="terminal-control-btn fullscreen" onclick="toggleFullscreen()" title="Toggle fullscreen">
+                ⛶ Full
+            </button>
+            <button class="terminal-control-btn copy" onclick="copyTerminalContent()" title="Copy all output">
+                📋 Copy
+            </button>
+        </div>
+        <div class="terminal-status">
+            <span class="status-indicator active" id="terminal-status">●</span>
+            <span class="status-text">Ready</span>
+        </div>
+    </div>
+    
+    <!-- Terminal Content -->
+    <div class="terminal-content" style="flex: 1; display: flex; flex-direction: column;">
+        <!-- Output Area -->
+        <div class="terminal-output" id="terminal-output" style="flex: 1; overflow-y: auto;">
+            <div class="terminal-line welcome">
+                <span class="terminal-prompt">apex@command-center:~$</span>
+                <span class="terminal-text">Welcome to APEX Command Center ⚡</span>
+            </div>
+            <div class="terminal-line info">
+                <span class="terminal-text">Ready to execute commands. Use the panels above or type directly.</span>
+            </div>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="terminal-input-container">
+            <div class="terminal-input-line">
+                <span class="terminal-prompt">apex@command-center:~$</span>
+                <input type="text" 
+                       id="terminal-input" 
+                       class="terminal-input" 
+                       placeholder="Type command or use buttons above..."
+                       autocomplete="off"
+                       spellcheck="false">
+                <button class="terminal-submit" onclick="executeTerminalCommand()" title="Execute command">
+                    ▶
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Terminal functionality
+let terminalHistory = [];
+let historyIndex = -1;
+let commandQueue = [];
+let isExecuting = false;
+
+// Execute command from terminal input
+function executeTerminalCommand() {
+    const input = document.getElementById('terminal-input');
+    const command = input.value.trim();
+    
+    if (!command) return;
+    
+    // Add to history
+    terminalHistory.unshift(command);
+    if (terminalHistory.length > 100) {
+        terminalHistory.pop();
+    }
+    historyIndex = -1;
+    
+    // Show command in terminal
+    addTerminalLine(command, 'command', true);
+    
+    // Clear input
+    input.value = '';
+    
+    // Execute command
+    executeCommand(command);
+}
+
+// Execute command (can be called from anywhere)
+function executeCommand(command, background = false) {
+    if (!command) return;
+    
+    // Update terminal status
+    updateTerminalStatus('executing', 'Executing...');
+    
+    // Add command to output if not already shown
+    if (!document.querySelector('.terminal-line.command:last-child')) {
+        addTerminalLine(command, 'command', true);
+    }
+    
+    // Send to backend
+    fetch('/execute-command', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            command: command,
+            background: background
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateTerminalStatus('ready', 'Ready');
+        
+        if (data.success) {
+            if (data.output) {
+                addTerminalLine(data.output, 'output');
+            }
+            if (data.error && data.error.trim()) {
+                addTerminalLine(data.error, 'error');
+            }
+        } else {
+            addTerminalLine(data.error || 'Command execution failed', 'error');
+        }
+        
+        // Auto-scroll to bottom
+        scrollTerminalToBottom();
+    })
+    .catch(error => {
+        updateTerminalStatus('error', 'Error');
+        addTerminalLine(`Error: ${error.message}`, 'error');
+        scrollTerminalToBottom();
+    });
+}
+
+// Add line to terminal output
+function addTerminalLine(text, type = 'output', showPrompt = false) {
+    const output = document.getElementById('terminal-output');
+    const line = document.createElement('div');
+    line.className = `terminal-line ${type}`;
+    
+    if (showPrompt && type === 'command') {
+        line.innerHTML = `
+            <span class="terminal-prompt">apex@command-center:~$</span>
+            <span class="terminal-text command-text">${escapeHtml(text)}</span>
+        `;
+    } else {
+        line.innerHTML = `<span class="terminal-text">${escapeHtml(text)}</span>`;
+    }
+    
+    output.appendChild(line);
+    scrollTerminalToBottom();
+}
+
+// Utility functions
+function clearTerminal() {
+    const output = document.getElementById('terminal-output');
+    output.innerHTML = `
+        <div class="terminal-line welcome">
+            <span class="terminal-prompt">apex@command-center:~$</span>
+            <span class="terminal-text">Terminal cleared ⚡</span>
+        </div>
+    `;
+}
+
+function copyTerminalContent() {
+    const output = document.getElementById('terminal-output');
+    const text = output.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        updateTerminalStatus('success', 'Copied!');
+        setTimeout(() => updateTerminalStatus('ready', 'Ready'), 2000);
+    });
+}
+
+function toggleFullscreen() {
+    const container = document.querySelector('.apex-content');
+    container.classList.toggle('terminal-fullscreen');
+    
+    const btn = document.querySelector('.terminal-control-btn.fullscreen');
+    btn.innerHTML = container.classList.contains('terminal-fullscreen') ? '⛶ Exit' : '⛶ Full';
+}
+
+function updateTerminalStatus(status, text) {
+    const indicator = document.getElementById('terminal-status');
+    const statusText = document.querySelector('.terminal-status .status-text');
+    
+    indicator.className = `status-indicator ${status}`;
+    statusText.textContent = text;
+}
+
+function scrollTerminalToBottom() {
+    const output = document.getElementById('terminal-output');
+    output.scrollTop = output.scrollHeight;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Terminal input event handlers
+document.getElementById('terminal-input')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        executeTerminalCommand();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (historyIndex < terminalHistory.length - 1) {
+            historyIndex++;
+            this.value = terminalHistory[historyIndex] || '';
+        }
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (historyIndex > 0) {
+            historyIndex--;
+            this.value = terminalHistory[historyIndex] || '';
+        } else if (historyIndex === 0) {
+            historyIndex = -1;
+            this.value = '';
+        }
+    } else if (e.key === 'Tab') {
+        e.preventDefault();
+        // Future: implement command completion
+        console.log('Tab completion not implemented yet');
+    }
+});
+
+// Auto-focus terminal input when clicking in terminal area
+document.querySelector('.terminal-container')?.addEventListener('click', function(e) {
+    if (e.target.closest('.terminal-output') || e.target.closest('.terminal-input-container')) {
+        document.getElementById('terminal-input')?.focus();
+    }
+});
+
+// Initialize terminal
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus terminal input
+    document.getElementById('terminal-input')?.focus();
+    
+    // Set up WebSocket for real-time output (if needed)
+    // Future enhancement for streaming command output
+});
+</script>

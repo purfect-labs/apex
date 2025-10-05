@@ -1,0 +1,269 @@
+<!-- AWS Commands - Trial+ Required -->
+<div class="command-section" data-feature="aws">
+    <h4 class="section-title">☁️ AWS Operations</h4>
+    
+    <!-- AWS SSO (Trial+ Feature) -->
+    <div class="command-group {{ 'locked' if not has_feature('aws_sso') else '' }}">
+        <h5 class="group-title">
+            AWS SSO
+            {% if not has_feature('aws_sso') %}
+                <span class="tier-requirement">🆓 Trial</span>
+            {% endif %}
+        </h5>
+        {% if has_feature('aws_sso') %}
+            <div class="command-buttons">
+                <button class="cmd-btn" data-cmd="aws sso login" title="Login to AWS SSO">
+                    🔑 Login
+                </button>
+                <button class="cmd-btn" data-cmd="aws sts get-caller-identity" title="Check current AWS identity">
+                    👤 Identity
+                </button>
+                <button class="cmd-btn" data-cmd="aws configure list-profiles" title="List AWS profiles">
+                    📋 Profiles
+                </button>
+            </div>
+        {% else %}
+            <div class="feature-overlay locked mini">
+                <div class="lock-message">
+                    <span class="lock-icon">🔒</span>
+                    <span class="lock-text">AWS SSO requires Trial license</span>
+                    <button class="upgrade-btn mini" onclick="showUpgradePrompt('aws_sso')">Start Trial</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- ECS Operations (Trial+ Feature) -->
+    <div class="command-group {{ 'locked' if not has_feature('ecs_ops') else '' }}">
+        <h5 class="group-title">
+            ECS Management
+            {% if not has_feature('ecs_ops') %}
+                <span class="tier-requirement">🆓 Trial</span>
+            {% endif %}
+        </h5>
+        {% if has_feature('ecs_ops') %}
+            <div class="command-buttons">
+                <button class="cmd-btn" data-cmd="aws ecs list-clusters" title="List ECS clusters">
+                    🏗️ Clusters
+                </button>
+                <button class="cmd-btn" data-cmd="aws ecs list-services --cluster" data-needs-input="cluster-name" title="List services in cluster">
+                    🚀 Services
+                </button>
+                <button class="cmd-btn" data-cmd="aws ecs list-tasks --cluster" data-needs-input="cluster-name" title="List tasks in cluster">
+                    📋 Tasks
+                </button>
+                <button class="cmd-btn warning" data-cmd="aws ecs update-service --cluster" data-needs-input="cluster-name" data-suffix="--service SERVICE_NAME --force-new-deployment" title="Force service deployment">
+                    🔄 Deploy
+                </button>
+            </div>
+        {% else %}
+            <div class="feature-overlay locked mini">
+                <div class="lock-message">
+                    <span class="lock-icon">🔒</span>
+                    <span class="lock-text">ECS operations require Trial license</span>
+                    <button class="upgrade-btn mini" onclick="showUpgradePrompt('ecs_ops')">Start Trial</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- RDS Database Connection (Premium Feature) -->
+    <div class="command-group {{ 'premium-locked' if not has_feature('rds_connect') else '' }}">
+        <h5 class="group-title">
+            Database Operations
+            {% if not has_feature('rds_connect') %}
+                <span class="tier-requirement">👑 Premium</span>
+            {% endif %}
+        </h5>
+        {% if has_feature('rds_connect') %}
+            <div class="db-connection-panel">
+                <div class="db-selector">
+                    <select id="db-environment" class="cmd-select">
+                        <option value="">Select Environment</option>
+                        <option value="dev">Development</option>
+                        <option value="staging">Staging</option>
+                        <option value="prod">Production</option>
+                    </select>
+                    <select id="db-instance" class="cmd-select">
+                        <option value="">Select Database</option>
+                    </select>
+                    <button class="cmd-btn primary" onclick="connectToRDS()" title="Connect to selected RDS instance">
+                        🔌 Connect
+                    </button>
+                </div>
+                
+                <div class="db-actions">
+                    <button class="cmd-btn" data-cmd="aws rds describe-db-instances" title="List RDS instances">
+                        📊 List DBs
+                    </button>
+                    <button class="cmd-btn" onclick="showDBStatus()" title="Show database connection status">
+                        🔍 Status
+                    </button>
+                    <button class="cmd-btn warning" onclick="disconnectFromRDS()" title="Disconnect from database">
+                        🔌 Disconnect
+                    </button>
+                </div>
+                
+                <div class="active-connections" id="db-connections">
+                    <!-- Active DB connections will be shown here -->
+                </div>
+            </div>
+        {% else %}
+            <div class="feature-overlay locked mini premium">
+                <div class="lock-message">
+                    <span class="lock-icon">👑</span>
+                    <span class="lock-text">Database connections require Premium license</span>
+                    <button class="upgrade-btn mini premium" onclick="showUpgradePrompt('rds_connect')">Upgrade to Premium</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- CloudWatch Logs (Trial+ Feature) -->
+    <div class="command-group {{ 'locked' if not has_feature('cloudwatch_logs') else '' }}">
+        <h5 class="group-title">
+            CloudWatch Logs
+            {% if not has_feature('cloudwatch_logs') %}
+                <span class="tier-requirement">🆓 Trial</span>
+            {% endif %}
+        </h5>
+        {% if has_feature('cloudwatch_logs') %}
+            <div class="command-buttons">
+                <button class="cmd-btn" data-cmd="aws logs describe-log-groups" title="List CloudWatch log groups">
+                    📋 Groups
+                </button>
+                <button class="cmd-btn" data-cmd="aws logs describe-log-streams --log-group-name" data-needs-input="log-group-name" title="List log streams">
+                    🌊 Streams
+                </button>
+                <button class="cmd-btn" onclick="tailCloudWatchLogs()" title="Tail CloudWatch logs">
+                    📜 Tail Logs
+                </button>
+            </div>
+        {% else %}
+            <div class="feature-overlay locked mini">
+                <div class="lock-message">
+                    <span class="lock-icon">🔒</span>
+                    <span class="lock-text">CloudWatch logs require Trial license</span>
+                    <button class="upgrade-btn mini" onclick="showUpgradePrompt('cloudwatch_logs')">Start Trial</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// AWS-specific functionality
+{% if has_feature('rds_connect') %}
+function connectToRDS() {
+    const env = document.getElementById('db-environment').value;
+    const instance = document.getElementById('db-instance').value;
+    
+    if (!env || !instance) {
+        alert('Please select both environment and database instance');
+        return;
+    }
+    
+    // Start RDS connection with port forwarding
+    const command = `aws rds describe-db-instances --db-instance-identifier ${instance}`;
+    executeCommand(command);
+    
+    // Add to active connections
+    addActiveDBConnection(env, instance);
+}
+
+function addActiveDBConnection(env, instance) {
+    const container = document.getElementById('db-connections');
+    const connDiv = document.createElement('div');
+    connDiv.className = 'active-db-connection';
+    connDiv.innerHTML = `
+        <span class="db-info">📊 ${env}: ${instance}</span>
+        <span class="db-status connecting">Connecting...</span>
+        <button class="cmd-btn small warning" onclick="disconnectDB(this, '${instance}')">Disconnect</button>
+    `;
+    container.appendChild(connDiv);
+    
+    // Simulate connection process
+    setTimeout(() => {
+        connDiv.querySelector('.db-status').className = 'db-status connected';
+        connDiv.querySelector('.db-status').textContent = 'Connected';
+    }, 2000);
+}
+
+function disconnectDB(button, instance) {
+    // Kill any port forwards for this instance
+    executeCommand(`pkill -f "rds.*${instance}"`);
+    button.parentElement.remove();
+}
+
+function disconnectFromRDS() {
+    document.getElementById('db-connections').innerHTML = '';
+    executeCommand('pkill -f "rds"');
+}
+
+function showDBStatus() {
+    executeCommand('ps aux | grep rds | grep -v grep');
+}
+
+// Auto-populate database instances when environment changes
+document.getElementById('db-environment')?.addEventListener('change', function() {
+    const env = this.value;
+    const dbSelect = document.getElementById('db-instance');
+    
+    // Mock database instances for each environment
+    const databases = {
+        dev: ['dev-app-db', 'dev-cache-db'],
+        staging: ['staging-app-db', 'staging-cache-db'],
+        prod: ['prod-app-db', 'prod-cache-db', 'prod-analytics-db']
+    };
+    
+    dbSelect.innerHTML = '<option value="">Select Database</option>';
+    
+    if (env && databases[env]) {
+        databases[env].forEach(db => {
+            const option = document.createElement('option');
+            option.value = db;
+            option.textContent = db;
+            dbSelect.appendChild(option);
+        });
+    }
+});
+{% endif %}
+
+{% if has_feature('cloudwatch_logs') %}
+function tailCloudWatchLogs() {
+    const logGroup = prompt('Enter CloudWatch log group name:');
+    if (!logGroup) return;
+    
+    const command = `aws logs tail ${logGroup} --follow`;
+    executeCommand(command, true); // Run in background
+}
+{% endif %}
+
+// Command execution for AWS features
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.cmd-btn[data-cmd]') && e.target.closest('[data-feature="aws"]')) {
+        // Only execute if not locked
+        if (e.target.closest('.locked, .premium-locked')) {
+            return;
+        }
+        
+        const cmd = e.target.getAttribute('data-cmd');
+        const needsInput = e.target.getAttribute('data-needs-input');
+        const suffix = e.target.getAttribute('data-suffix') || '';
+        
+        let fullCommand = cmd;
+        
+        if (needsInput) {
+            const input = prompt(`Enter ${needsInput}:`);
+            if (!input) return;
+            fullCommand += ` ${input}`;
+        }
+        
+        if (suffix) {
+            fullCommand += ` ${suffix}`;
+        }
+        
+        executeCommand(fullCommand);
+    }
+});
+</script>

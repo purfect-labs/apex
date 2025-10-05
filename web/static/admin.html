@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ APEX Admin Backend - API Testing & Management</title>
+    <style>
+        /* Cyberpunk Admin Theme */
+        :root {
+            --dark-bg: #0a0a0f;
+            --surface-color: #1a1a2e;
+            --surface-dark: #16213e;
+            --neon-green: #00ff41;
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff0080;
+            --neon-purple: #8a2be2;
+            --neon-yellow: #ffff00;
+            --neon-blue: #0066ff;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #333366;
+            --error-color: #ff4444;
+            --success-color: #00ff88;
+            --warning-color: #ffaa00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Monaco', monospace;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--surface-dark) 100%);
+            color: var(--text-primary);
+            overflow-x: auto;
+        }
+
+        .admin-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--surface-color);
+            border-right: 2px solid var(--neon-cyan);
+            box-shadow: 2px 0 20px rgba(0, 255, 255, 0.1);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .admin-title {
+            color: var(--neon-green);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px var(--neon-green);
+            text-align: center;
+            animation: pulse-glow 3s infinite;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            color: var(--neon-purple);
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .nav-item:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+            color: var(--neon-cyan);
+        }
+
+        .nav-item.active {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--dark-bg);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            border-bottom: 2px solid var(--neon-green);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            color: var(--neon-green);
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* API Testing Interface */
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .api-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .api-card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .method-get { background: var(--neon-green); color: var(--dark-bg); }
+        .method-post { background: var(--neon-yellow); color: var(--dark-bg); }
+        .method-put { background: var(--neon-purple); color: white; }
+        .method-delete { background: var(--neon-pink); color: white; }
+
+        .api-path {
+            color: var(--neon-cyan);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .test-button {
+            background: var(--surface-dark);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .test-button:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+        }
+
+        .test-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Response Area */
+        .response-container {
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .response-header {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .response-body {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            border-radius: 0 0 4px 4px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .response-success { border-left: 4px solid var(--success-color); }
+        .response-error { border-left: 4px solid var(--error-color); }
+        .response-warning { border-left: 4px solid var(--warning-color); }
+
+        /* System Status */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-value {
+            color: var(--neon-cyan);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Command Executor */
+        .command-section {
+            background: var(--surface-color);
+            border: 2px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .command-input {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: 4px;
+            width: 100%;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .command-input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .execute-button {
+            background: var(--neon-green);
+            color: var(--dark-bg);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .execute-button:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        /* Real-time Logs */
+        .log-container {
+            background: var(--surface-color);
+            border: 2px solid var(--neon-purple);
+            border-radius: 8px;
+            height: 400px;
+            padding: 1rem;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+            margin-right: 1rem;
+        }
+
+        .log-level-info { color: var(--neon-cyan); }
+        .log-level-warn { color: var(--neon-yellow); }
+        .log-level-error { color: var(--neon-pink); }
+        .log-level-success { color: var(--neon-green); }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 10px var(--neon-green); }
+            50% { text-shadow: 0 0 20px var(--neon-green), 0 0 30px var(--neon-green); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admin-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .api-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="admin-title">⚡ APEX ADMIN</div>
+            
+            <div class="nav-section">
+                <div class="nav-title">🔌 Provider Testing</div>
+                <div class="nav-item active" onclick="showSection('aws-provider')">AWS Provider</div>
+                <div class="nav-item" onclick="showSection('gcp-provider')">GCP Provider</div>
+                <div class="nav-item" onclick="showSection('k8s-provider')">Kubernetes Provider</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">⚡ Command Testing</div>
+                <div class="nav-item" onclick="showSection('aws-commands')">AWS Commands</div>
+                <div class="nav-item" onclick="showSection('gcp-commands')">GCP Commands</div>
+                <div class="nav-item" onclick="showSection('kubectl-commands')">kubectl Commands</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">📊 System Info</div>
+                <div class="nav-item" onclick="showSection('system-status')">Live Status</div>
+                <div class="nav-item" onclick="showSection('api-testing')">API Endpoints</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">🛠 Tools</div>
+                <div class="nav-item" onclick="showSection('logs-viewer')">Live Logs</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- AWS Provider Testing -->
+            <div id="aws-provider" class="content-section active">
+                <div class="section-header">
+                    <div class="section-title">🟠 AWS Provider Authentication</div>
+                    <div class="section-subtitle">Test AWS SSO authentication across all environments and verify provider capabilities</div>
+                </div>
+
+                <div class="status-grid">
+                    <div class="status-card" onclick="testAWSAuth('dev')" style="cursor: pointer;">
+                        <div class="status-icon">🟢</div>
+                        <div class="status-label">DEV Environment</div>
+                        <div class="status-value" id="aws-dev-status">Click to Test</div>
+                    </div>
+                    <div class="status-card" onclick="testAWSAuth('stage')" style="cursor: pointer;">
+                        <div class="status-icon">🟡</div>
+                        <div class="status-label">STAGE Environment</div>
+                        <div class="status-value" id="aws-stage-status">Click to Test</div>
+                    </div>
+                    <div class="status-card" onclick="testAWSAuth('prod')" style="cursor: pointer;">
+                        <div class="status-icon">🔴</div>
+                        <div class="status-label">PROD Environment</div>
+                        <div class="status-value" id="aws-prod-status">Click to Test</div>
+                    </div>
+                </div>
+
+                <div class="command-section">
+                    <h3 style="color: var(--neon-cyan); margin-bottom: 1rem;">📜 AWS Provider Capabilities Test</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <button onclick="testAWSCapability('identity')" class="test-button">Test Identity (sts get-caller-identity)</button>
+                        <button onclick="testAWSCapability('profiles')" class="test-button">Test Profile List</button>
+                        <button onclick="testAWSCapability('regions')" class="test-button">Test Region List</button>
+                        <button onclick="testAWSCapability('switch-profile')" class="test-button">Test Profile Switching</button>
+                    </div>
+                    
+                    <div class="response-container" id="aws-provider-output" style="display: none;">
+                        <div class="response-header">AWS Provider Test Results:</div>
+                        <div class="response-body" id="aws-provider-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GCP Provider Testing -->
+            <div id="gcp-provider" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🔵 GCP Provider Authentication</div>
+                    <div class="section-subtitle">Test GCP authentication and project switching across all environments</div>
+                </div>
+
+                <div class="status-grid">
+                    <div class="status-card" onclick="testGCPAuth('dev')" style="cursor: pointer;">
+                        <div class="status-icon">🟢</div>
+                        <div class="status-label">DEV Project</div>
+                        <div class="status-value" id="gcp-dev-status">Click to Test</div>
+                    </div>
+                    <div class="status-card" onclick="testGCPAuth('stage')" style="cursor: pointer;">
+                        <div class="status-icon">🟡</div>
+                        <div class="status-label">STAGE Project</div>
+                        <div class="status-value" id="gcp-stage-status">Click to Test</div>
+                    </div>
+                    <div class="status-card" onclick="testGCPAuth('prod')" style="cursor: pointer;">
+                        <div class="status-icon">🔴</div>
+                        <div class="status-label">PROD Project</div>
+                        <div class="status-value" id="gcp-prod-status">Click to Test</div>
+                    </div>
+                </div>
+
+                <div class="command-section">
+                    <h3 style="color: var(--neon-cyan); margin-bottom: 1rem;">📜 GCP Provider Capabilities Test</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <button onclick="testGCPCapability('auth-list')" class="test-button">Test Auth List</button>
+                        <button onclick="testGCPCapability('projects')" class="test-button">Test Project List</button>
+                        <button onclick="testGCPCapability('switch-project')" class="test-button">Test Project Switching</button>
+                        <button onclick="testGCPCapability('config')" class="test-button">Test GCP Config</button>
+                    </div>
+                    
+                    <div class="response-container" id="gcp-provider-output" style="display: none;">
+                        <div class="response-header">GCP Provider Test Results:</div>
+                        <div class="response-body" id="gcp-provider-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kubernetes Provider Testing -->
+            <div id="k8s-provider" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">⚙️ Kubernetes Provider</div>
+                    <div class="section-subtitle">Test kubectl connectivity and cluster access across environments</div>
+                </div>
+
+                <div class="command-section">
+                    <h3 style="color: var(--neon-cyan); margin-bottom: 1rem;">📜 kubectl Provider Capabilities Test</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <button onclick="testK8sCapability('cluster-info')" class="test-button">Cluster Info</button>
+                        <button onclick="testK8sCapability('contexts')" class="test-button">List Contexts</button>
+                        <button onclick="testK8sCapability('namespaces')" class="test-button">List Namespaces</button>
+                        <button onclick="testK8sCapability('nodes')" class="test-button">List Nodes</button>
+                        <button onclick="testK8sCapability('pods')" class="test-button">List Pods</button>
+                        <button onclick="testK8sCapability('services')" class="test-button">List Services</button>
+                    </div>
+                    
+                    <div class="response-container" id="k8s-provider-output" style="display: none;">
+                        <div class="response-header">Kubernetes Provider Test Results:</div>
+                        <div class="response-body" id="k8s-provider-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AWS Commands Testing -->
+            <div id="aws-commands" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🟠 AWS Ad-hoc Commands</div>
+                    <div class="section-subtitle">Execute real AWS CLI commands with provider authentication</div>
+                </div>
+
+                <div class="command-section">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: var(--neon-purple); margin-bottom: 0.5rem; display: block;">Environment:</label>
+                        <select id="aws-env-select" class="command-input" style="width: auto; margin-right: 1rem;">
+                            <option value="dev">DEV (232143722969)</option>
+                            <option value="stage">STAGE (629280658692)</option>
+                            <option value="prod">PROD (325871136907)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: var(--neon-purple); margin-bottom: 0.5rem; display: block;">Quick Commands:</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-bottom: 1rem;">
+                            <button onclick="setAWSCommand('aws sts get-caller-identity')" class="test-button">Get Identity</button>
+                            <button onclick="setAWSCommand('aws ec2 describe-instances --max-items 5')" class="test-button">List EC2</button>
+                            <button onclick="setAWSCommand('aws s3 ls')" class="test-button">List S3 Buckets</button>
+                            <button onclick="setAWSCommand('aws rds describe-db-instances')" class="test-button">List RDS</button>
+                            <button onclick="setAWSCommand('aws iam get-user')" class="test-button">Get IAM User</button>
+                            <button onclick="setAWSCommand('aws route53 list-hosted-zones')" class="test-button">List Route53</button>
+                        </div>
+                    </div>
+                    
+                    <input type="text" id="aws-command-input" class="command-input" placeholder="aws sts get-caller-identity" />
+                    <button onclick="executeAWSCommand()" class="execute-button">EXECUTE AWS COMMAND</button>
+                    
+                    <div class="response-container" id="aws-command-output" style="display: none;">
+                        <div class="response-header">AWS Command Output:</div>
+                        <div class="response-body" id="aws-command-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GCP Commands Testing -->
+            <div id="gcp-commands" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🔵 GCP Ad-hoc Commands</div>
+                    <div class="section-subtitle">Execute real gcloud commands with project switching</div>
+                </div>
+
+                <div class="command-section">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: var(--neon-purple); margin-bottom: 0.5rem; display: block;">Project:</label>
+                        <select id="gcp-project-select" class="command-input" style="width: auto; margin-right: 1rem;">
+                            <option value="dev">DEV (kenect-service-dev)</option>
+                            <option value="stage">STAGE (kenect-service-stage)</option>
+                            <option value="prod">PROD (kenect-service-prod)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: var(--neon-purple); margin-bottom: 0.5rem; display: block;">Quick Commands:</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-bottom: 1rem;">
+                            <button onclick="setGCPCommand('gcloud auth list')" class="test-button">Auth List</button>
+                            <button onclick="setGCPCommand('gcloud projects list')" class="test-button">List Projects</button>
+                            <button onclick="setGCPCommand('gcloud compute instances list --limit=5')" class="test-button">List VMs</button>
+                            <button onclick="setGCPCommand('gcloud storage buckets list')" class="test-button">List Buckets</button>
+                            <button onclick="setGCPCommand('gcloud container clusters list')" class="test-button">List GKE</button>
+                            <button onclick="setGCPCommand('gcloud sql instances list')" class="test-button">List CloudSQL</button>
+                        </div>
+                    </div>
+                    
+                    <input type="text" id="gcp-command-input" class="command-input" placeholder="gcloud auth list" />
+                    <button onclick="executeGCPCommand()" class="execute-button">EXECUTE GCP COMMAND</button>
+                    
+                    <div class="response-container" id="gcp-command-output" style="display: none;">
+                        <div class="response-header">GCP Command Output:</div>
+                        <div class="response-body" id="gcp-command-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- kubectl Commands Testing -->
+            <div id="kubectl-commands" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">⚙️ kubectl Ad-hoc Commands</div>
+                    <div class="section-subtitle">Execute real kubectl commands against your clusters</div>
+                </div>
+
+                <div class="command-section">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="color: var(--neon-purple); margin-bottom: 0.5rem; display: block;">Quick Commands:</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; margin-bottom: 1rem;">
+                            <button onclick="setKubectlCommand('kubectl cluster-info')" class="test-button">Cluster Info</button>
+                            <button onclick="setKubectlCommand('kubectl get nodes')" class="test-button">Get Nodes</button>
+                            <button onclick="setKubectlCommand('kubectl get pods --all-namespaces')" class="test-button">All Pods</button>
+                            <button onclick="setKubectlCommand('kubectl get services')" class="test-button">Get Services</button>
+                            <button onclick="setKubectlCommand('kubectl get namespaces')" class="test-button">Get Namespaces</button>
+                            <button onclick="setKubectlCommand('kubectl get contexts')" class="test-button">Get Contexts</button>
+                            <button onclick="setKubectlCommand('kubectl top nodes')" class="test-button">Node Metrics</button>
+                            <button onclick="setKubectlCommand('kubectl get deployments --all-namespaces')" class="test-button">Deployments</button>
+                        </div>
+                    </div>
+                    
+                    <input type="text" id="kubectl-command-input" class="command-input" placeholder="kubectl get pods" />
+                    <button onclick="executeKubectlCommand()" class="execute-button">EXECUTE KUBECTL COMMAND</button>
+                    
+                    <div class="response-container" id="kubectl-command-output" style="display: none;">
+                        <div class="response-header">kubectl Command Output:</div>
+                        <div class="response-body" id="kubectl-command-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status Section -->
+            <div id="system-status" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">📊 Live System Status</div>
+                    <div class="section-subtitle">Real-time system health and metrics</div>
+                </div>
+
+                <div class="status-grid" id="status-metrics">
+                    <!-- Status cards will be populated here -->
+                </div>
+                
+                <button onclick="refreshStatus()" class="test-button" style="max-width: 200px;">🔄 Refresh Status</button>
+            </div>
+            
+            <!-- API Testing Section -->
+            <div id="api-testing" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🔧 API Endpoint Testing</div>
+                    <div class="section-subtitle">Test all backend API endpoints</div>
+                </div>
+                
+                <!-- ENDPOINT DISCOVERY BUTTONS -->
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: var(--neon-cyan); margin-bottom: 1rem;">🔍 Real-Time Endpoint Discovery</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <button onclick="discoverAllEndpoints()" class="test-button" style="background: var(--neon-green); color: var(--dark-bg); font-weight: bold;">
+                            🚀 DISCOVER ALL ENDPOINTS
+                        </button>
+                        <button onclick="discoverAWSEndpoints()" class="test-button" style="background: var(--neon-yellow); color: var(--dark-bg);">
+                            🟠 AWS ENDPOINTS
+                        </button>
+                        <button onclick="discoverGCPEndpoints()" class="test-button" style="background: var(--neon-blue); color: white;">
+                            🌐 GCP ENDPOINTS
+                        </button>
+                        <button onclick="discoverK8sEndpoints()" class="test-button" style="background: var(--neon-purple); color: white;">
+                            ⚓ K8S ENDPOINTS
+                        </button>
+                    </div>
+                    
+                    <!-- COMPREHENSIVE TEST AUTOMATION -->
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--neon-cyan); padding-top: 1rem;">
+                        <h4 style="color: var(--neon-pink); margin-bottom: 1rem;">🗺 COMPREHENSIVE ENDPOINT TESTING</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <button onclick="executeAllEndpointsAndCollectFlaws()" class="test-button" style="background: var(--neon-pink); color: white; font-weight: bold;">
+                                🗺 TEST ALL ENDPOINTS & COLLECT FLAWS
+                            </button>
+                            <button onclick="generateFixReport()" class="test-button" style="background: var(--neon-cyan); color: var(--dark-bg);">
+                                🔧 GENERATE FIX REPORT
+                            </button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                            <button onclick="autoFixEndpoints()" class="test-button" style="background: var(--neon-purple); color: white;">
+                                🤖 AUTO-FIX ENDPOINTS
+                            </button>
+                            <button onclick="generateMissingRoutes()" class="test-button" style="background: var(--neon-green); color: var(--dark-bg);">
+                                🔍 GENERATE MISSING ROUTES
+                            </button>
+                        </div>
+                        
+                        <!-- Test Results Summary -->
+                        <div class="response-container" id="comprehensive-test-results" style="display: none;">
+                            <div class="response-header">🗺 Comprehensive Test Results & Flaws to Fix</div>
+                            <div class="response-body" id="test-summary"></div>
+                        </div>
+                        
+                        <!-- Fix Report JSON -->
+                        <div class="response-container" id="fix-report-json" style="display: none; margin-top: 1rem;">
+                            <div class="response-header">
+                                📊 JSON Fix Report
+                                <button onclick="copyReportToClipboard()" class="test-button" style="float: right; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                    📋 COPY JSON
+                                </button>
+                            </div>
+                            <div class="response-body response-success" id="fix-report-data" style="font-family: 'Courier New', monospace; white-space: pre-wrap; max-height: 500px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Discovery Results Display -->
+                    <div class="response-container" id="discovery-results" style="display: none; margin-bottom: 1rem;">
+                        <div class="response-header">🔍 Endpoint Discovery Results</div>
+                        <div class="response-body" id="discovery-data"></div>
+                    </div>
+                </div>
+
+                <div class="api-grid" id="api-endpoints">
+                    <!-- REAL discovered endpoint cards will be populated here by discovery buttons only -->
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        🔍 Click a discovery button above to show REAL endpoints
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Viewer -->
+            <div id="config-viewer" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">⚙️ Configuration Viewer</div>
+                    <div class="section-subtitle">View current system configuration</div>
+                </div>
+
+                <div class="response-container" id="config-display">
+                    <div class="response-header">Current Configuration:</div>
+                    <div class="response-body" id="config-content">Click refresh to load configuration...</div>
+                </div>
+                
+                <button onclick="loadConfig()" class="test-button" style="max-width: 200px;">📄 Load Config</button>
+            </div>
+
+            <!-- License Management -->
+            <div id="license-mgmt" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🔑 License Management</div>
+                    <div class="section-subtitle">Manage license activation and testing</div>
+                </div>
+
+                <div class="api-grid">
+                    <div class="api-card">
+                        <div class="api-method method-get">GET</div>
+                        <div class="api-path">/api/license/status</div>
+                        <div class="api-description">Get current license status</div>
+                        <button onclick="testEndpoint('/api/license/status', 'GET')" class="test-button">Test License Status</button>
+                        <div class="response-container" id="response-license-status"></div>
+                    </div>
+
+                    <div class="api-card">
+                        <div class="api-method method-post">POST</div>
+                        <div class="api-path">/api/license/generate-trial</div>
+                        <div class="api-description">Generate trial license</div>
+                        <button onclick="generateTrialLicense()" class="test-button">Generate Trial License</button>
+                        <div class="response-container" id="response-trial-gen"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Tools -->
+            <div id="database-tools" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🗄️ Database Tools</div>
+                    <div class="section-subtitle">Database connectivity and management</div>
+                </div>
+
+                <div class="command-section">
+                    <input type="text" id="db-query" class="command-input" placeholder="SELECT COUNT(*) FROM users;" />
+                    <button onclick="executeDbQuery()" class="execute-button">Execute Query</button>
+                    
+                    <div class="response-container" id="db-output" style="display: none;">
+                        <div class="response-header">Database Query Result:</div>
+                        <div class="response-body" id="db-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Logs -->
+            <div id="logs-viewer" class="content-section">
+                <div class="section-header">
+                    <div class="section-title">📋 Live System Logs</div>
+                    <div class="section-subtitle">Real-time system logs and events</div>
+                </div>
+
+                <div class="log-container" id="live-logs">
+                    <div class="log-entry">
+                        <span class="log-timestamp">2025-01-04 17:10:00</span>
+                        <span class="log-level-info">INFO</span>
+                        APEX Admin Backend initialized
+                    </div>
+                </div>
+                
+                <button onclick="toggleLogs()" class="test-button" style="max-width: 200px;" id="log-toggle">🎯 Start Live Logs</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let logInterval = null;
+        let statusInterval = null;
+
+        // NO MORE FAKE ENDPOINTS - ONLY REAL DISCOVERED ONES
+
+        // COMPREHENSIVE AUTO-DISCOVERY AND TESTING ON PAGE LOAD
+        async function autoDiscoverAndTestSystem() {
+            addLogEntry('🔍 Starting COMPREHENSIVE system auto-discovery...', 'info');
+            
+            const discoveryResults = { endpoints: { gcp: [], k8s: [] }, realData: { gcp: {}, k8s: {} } };
+            
+            // 1. DISCOVER GCP ENDPOINTS WITH REAL TESTING
+            try {
+                addLogEntry('🌐 Auto-discovering GCP endpoints with REAL provider verification...', 'info');
+                const gcpResponse = await fetch('/api/gcp/endpoints');
+                const gcpData = await gcpResponse.json();
+                
+                if (gcpData.success) {
+                    discoveryResults.endpoints.gcp = gcpData.endpoints.available_endpoints;
+                    addLogEntry(`✅ Found ${gcpData.endpoints.total_endpoints} GCP endpoints (${gcpData.endpoints.verified_endpoints} verified)`, 'success');
+                    
+                    // Test each GCP endpoint with real calls
+                    for (const endpoint of discoveryResults.endpoints.gcp) {
+                        if (endpoint.provider_verified) {
+                            try {
+                                addLogEntry(`🧪 REAL TEST: ${endpoint.endpoint}`, 'info');
+                                const testResponse = await fetch(endpoint.endpoint);
+                                const testData = await testResponse.json();
+                                
+                                discoveryResults.realData.gcp[endpoint.endpoint] = {
+                                    status: testResponse.status,
+                                    data: testData,
+                                    working: testResponse.ok
+                                };
+                                
+                                if (testResponse.ok) {
+                                    addLogEntry(`✅ REAL DATA from ${endpoint.endpoint}!`, 'success');
+                                    if (testData.active_account) {
+                                        addLogEntry(`  🔐 Account: ${testData.active_account}`, 'success');
+                                    }
+                                    if (testData.current_project) {
+                                        addLogEntry(`  📋 Project: ${testData.current_project}`, 'success');
+                                    }
+                                } else {
+                                    addLogEntry(`⚠️ ${endpoint.endpoint}: Status ${testResponse.status}`, 'warn');
+                                }
+                            } catch (error) {
+                                addLogEntry(`❌ ${endpoint.endpoint}: ${error.message}`, 'error');
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                addLogEntry(`❌ GCP discovery failed: ${error.message}`, 'error');
+            }
+            
+            // 2. DISCOVER K8S ENDPOINTS WITH REAL TESTING
+            try {
+                addLogEntry('⚓ Auto-discovering K8s endpoints with REAL kubectl verification...', 'info');
+                const k8sResponse = await fetch('/api/k8s/endpoints');
+                const k8sData = await k8sResponse.json();
+                
+                if (k8sData.success) {
+                    discoveryResults.endpoints.k8s = k8sData.endpoints.available_endpoints;
+                    addLogEntry(`✅ Found ${k8sData.endpoints.total_endpoints} K8s endpoints (${k8sData.endpoints.verified_endpoints} verified)`, k8sData.endpoints.verified_endpoints > 0 ? 'success' : 'warn');
+                    
+                    // Test each K8s endpoint
+                    for (const endpoint of discoveryResults.endpoints.k8s) {
+                        try {
+                            addLogEntry(`🧪 REAL TEST: ${endpoint.endpoint}`, 'info');
+                            const testResponse = await fetch(endpoint.endpoint);
+                            const testData = await testResponse.json();
+                            
+                            discoveryResults.realData.k8s[endpoint.endpoint] = {
+                                status: testResponse.status,
+                                data: testData,
+                                working: testResponse.ok
+                            };
+                            
+                            if (testResponse.ok) {
+                                addLogEntry(`✅ REAL DATA from ${endpoint.endpoint}!`, 'success');
+                            } else {
+                                addLogEntry(`⚠️ ${endpoint.endpoint}: Status ${testResponse.status}`, 'warn');
+                            }
+                        } catch (error) {
+                            addLogEntry(`❌ ${endpoint.endpoint}: ${error.message}`, 'error');
+                        }
+                    }
+                }
+            } catch (error) {
+                addLogEntry(`❌ K8s discovery failed: ${error.message}`, 'error');
+            }
+            
+            // 3. GET REAL SYSTEM STATUS
+            try {
+                addLogEntry('📊 Getting REAL system authentication status...', 'info');
+                const statusResponse = await fetch('/api/status');
+                const statusData = await statusResponse.json();
+                
+                if (statusResponse.ok) {
+                    addLogEntry('✅ REAL system status retrieved!', 'success');
+                    
+                    // AWS Status
+                    if (statusData.aws && statusData.aws.authentication) {
+                        const aws = statusData.aws.authentication;
+                        addLogEntry(`🔐 AWS: ${aws.all_authenticated ? 'ALL AUTHENTICATED' : 'PARTIAL'}`, aws.all_authenticated ? 'success' : 'warn');
+                        Object.keys(aws.profiles || {}).forEach(profile => {
+                            const p = aws.profiles[profile];
+                            if (p.authenticated) {
+                                addLogEntry(`  ✅ ${profile}: ${p.user} @ ${p.account}`, 'success');
+                            }
+                        });
+                    }
+                    
+                    // GCP Status
+                    if (statusData.gcp && statusData.gcp.authentication) {
+                        const gcp = statusData.gcp.authentication;
+                        if (gcp.authenticated) {
+                            addLogEntry(`🔐 GCP: ${gcp.active_account} @ ${gcp.current_project}`, 'success');
+                        }
+                    }
+                }
+            } catch (error) {
+                addLogEntry(`❌ System status error: ${error.message}`, 'error');
+            }
+            
+            // 4. AUTO-DISCOVERY COMPLETED - NO FAKE UI UPDATES
+            addLogEntry('🎯 COMPREHENSIVE AUTO-DISCOVERY COMPLETED!', 'success');
+            addLogEntry('🔍 Use discovery buttons in API Testing section for detailed results', 'info');
+            return discoveryResults;
+        }
+        
+        async function testRealEndpoint(endpoint) {
+            addLogEntry(`🧪 Re-testing REAL endpoint: ${endpoint}`, 'info');
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                addLogEntry(`${response.ok ? '✅' : '❌'} ${endpoint}: ${response.status}`, response.ok ? 'success' : 'error');
+            } catch (error) {
+                addLogEntry(`❌ ${endpoint} failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // ENDPOINT DISCOVERY BUTTON FUNCTIONS
+        async function discoverAllEndpoints() {
+            addLogEntry('🚀 DISCOVERING ALL ENDPOINTS...', 'info');
+            const discoveryContainer = document.getElementById('discovery-results');
+            const discoveryData = document.getElementById('discovery-data');
+            const endpointContainer = document.getElementById('api-endpoints');
+            
+            discoveryContainer.style.display = 'block';
+            discoveryData.innerHTML = 'Loading all endpoints...';
+            endpointContainer.innerHTML = '<div style="text-align: center; color: var(--neon-cyan);">Loading all endpoints...</div>';
+            
+            try {
+                // Discover all provider endpoints
+                const awsResponse = await fetch('/api/aws/endpoints');
+                const awsData = await awsResponse.json();
+                
+                const gcpResponse = await fetch('/api/gcp/endpoints');
+                const gcpData = await gcpResponse.json();
+                
+                const k8sResponse = await fetch('/api/k8s/endpoints');
+                const k8sData = await k8sResponse.json();
+                
+                const allResults = {
+                    aws: awsData,
+                    gcp: gcpData,
+                    k8s: k8sData,
+                    discovery_time: new Date().toISOString()
+                };
+                
+                discoveryData.className = 'response-body response-success';
+                discoveryData.innerHTML = JSON.stringify(allResults, null, 2);
+                
+                // Create executable endpoint cards
+                endpointContainer.innerHTML = '';
+                let allEndpoints = [];
+                
+                if (awsData.success) {
+                    allEndpoints = allEndpoints.concat(awsData.endpoints.available_endpoints.map(ep => ({...ep, provider: 'aws'})));
+                    addLogEntry(`✅ AWS: ${awsData.endpoints.total_endpoints} endpoints (${awsData.endpoints.verified_endpoints} verified)`, 'success');
+                }
+                
+                if (gcpData.success) {
+                    allEndpoints = allEndpoints.concat(gcpData.endpoints.available_endpoints.map(ep => ({...ep, provider: 'gcp'})));
+                    addLogEntry(`✅ GCP: ${gcpData.endpoints.total_endpoints} endpoints (${gcpData.endpoints.verified_endpoints} verified)`, 'success');
+                }
+                
+                if (k8sData.success) {
+                    allEndpoints = allEndpoints.concat(k8sData.endpoints.available_endpoints.map(ep => ({...ep, provider: 'k8s'})));
+                    addLogEntry(`✅ K8s: ${k8sData.endpoints.total_endpoints} endpoints (${k8sData.endpoints.verified_endpoints} verified)`, k8sData.endpoints.verified_endpoints > 0 ? 'success' : 'warn');
+                }
+                
+                // Create executable cards for all endpoints
+                createExecutableEndpointCards(allEndpoints, endpointContainer);
+                
+                addLogEntry('🎯 ALL ENDPOINTS DISCOVERED WITH EXECUTION CAPABILITIES!', 'success');
+                
+            } catch (error) {
+                discoveryData.className = 'response-body response-error';
+                discoveryData.innerHTML = `Discovery Error: ${error.message}`;
+                addLogEntry(`❌ Endpoint discovery failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function discoverAWSEndpoints() {
+            addLogEntry('🟠 DISCOVERING AWS ENDPOINTS...', 'info');
+            const discoveryContainer = document.getElementById('discovery-results');
+            const discoveryData = document.getElementById('discovery-data');
+            const endpointContainer = document.getElementById('api-endpoints');
+            
+            discoveryContainer.style.display = 'block';
+            discoveryData.innerHTML = 'Loading AWS endpoints...';
+            endpointContainer.innerHTML = '<div style="text-align: center; color: var(--neon-yellow);">Loading AWS endpoints...</div>';
+            
+            try {
+                const response = await fetch('/api/aws/endpoints');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    discoveryData.className = 'response-body response-success';
+                    discoveryData.innerHTML = JSON.stringify(data, null, 2);
+                    
+                    if (data.success) {
+                        addLogEntry(`✅ AWS Discovery: ${data.endpoints.total_endpoints} endpoints found!`, 'success');
+                        addLogEntry(`  ✅ Verified: ${data.endpoints.verified_endpoints}/${data.endpoints.total_endpoints}`, 'success');
+                        
+                        // Create executable endpoint cards
+                        const awsEndpoints = data.endpoints.available_endpoints.map(ep => ({...ep, provider: 'aws'}));
+                        createExecutableEndpointCards(awsEndpoints, endpointContainer);
+                        
+                        // List all endpoints
+                        data.endpoints.available_endpoints.forEach(endpoint => {
+                            const status = endpoint.provider_verified ? '✅' : '❌';
+                            addLogEntry(`  ${status} ${endpoint.method} ${endpoint.endpoint}`, endpoint.provider_verified ? 'success' : 'warn');
+                        });
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                discoveryData.className = 'response-body response-error';
+                discoveryData.innerHTML = `AWS Discovery Error: ${error.message}`;
+                addLogEntry(`❌ AWS endpoint discovery failed: ${error.message}`, 'error');
+            }
+        }
+        
+        
+        async function discoverGCPEndpoints() {
+            addLogEntry('🌐 DISCOVERING GCP ENDPOINTS...', 'info');
+            const discoveryContainer = document.getElementById('discovery-results');
+            const discoveryData = document.getElementById('discovery-data');
+            const endpointContainer = document.getElementById('api-endpoints');
+            
+            discoveryContainer.style.display = 'block';
+            discoveryData.innerHTML = 'Loading GCP endpoints...';
+            endpointContainer.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">Loading GCP endpoints...</div>';
+            
+            try {
+                const response = await fetch('/api/gcp/endpoints');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    discoveryData.className = 'response-body response-success';
+                    discoveryData.innerHTML = JSON.stringify(data, null, 2);
+                    
+                    if (data.success) {
+                        addLogEntry(`✅ GCP Discovery: ${data.endpoints.total_endpoints} endpoints found!`, 'success');
+                        addLogEntry(`  🔐 Account: ${data.endpoints.available_endpoints.find(e => e.current_account)?.current_account || 'Unknown'}`, 'info');
+                        addLogEntry(`  ✅ Verified: ${data.endpoints.verified_endpoints}/${data.endpoints.total_endpoints}`, 'success');
+                        
+                        // Create executable endpoint cards
+                        const gcpEndpoints = data.endpoints.available_endpoints.map(ep => ({...ep, provider: 'gcp'}));
+                        createExecutableEndpointCards(gcpEndpoints, endpointContainer);
+                        
+                        // List all endpoints
+                        data.endpoints.available_endpoints.forEach(endpoint => {
+                            const status = endpoint.provider_verified ? '✅' : '❌';
+                            addLogEntry(`  ${status} ${endpoint.method} ${endpoint.endpoint}`, endpoint.provider_verified ? 'success' : 'warn');
+                        });
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                discoveryData.className = 'response-body response-error';
+                discoveryData.innerHTML = `GCP Discovery Error: ${error.message}`;
+                addLogEntry(`❌ GCP endpoint discovery failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function discoverK8sEndpoints() {
+            addLogEntry('⚓ DISCOVERING K8S ENDPOINTS...', 'info');
+            const discoveryContainer = document.getElementById('discovery-results');
+            const discoveryData = document.getElementById('discovery-data');
+            const endpointContainer = document.getElementById('api-endpoints');
+            
+            discoveryContainer.style.display = 'block';
+            discoveryData.innerHTML = 'Loading K8s endpoints...';
+            endpointContainer.innerHTML = '<div style="text-align: center; color: var(--neon-purple);">Loading K8s endpoints...</div>';
+            
+            try {
+                const response = await fetch('/api/k8s/endpoints');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    discoveryData.className = 'response-body response-success';
+                    discoveryData.innerHTML = JSON.stringify(data, null, 2);
+                    
+                    if (data.success) {
+                        addLogEntry(`✅ K8s Discovery: ${data.endpoints.total_endpoints} endpoints found!`, 'success');
+                        addLogEntry(`  🔧 kubectl Required: ${data.endpoints.kubectl_required ? 'YES' : 'NO'}`, 'info');
+                        addLogEntry(`  ✅ Verified: ${data.endpoints.verified_endpoints}/${data.endpoints.total_endpoints}`, data.endpoints.verified_endpoints > 0 ? 'success' : 'warn');
+                        
+                        // Create executable endpoint cards
+                        const k8sEndpoints = data.endpoints.available_endpoints.map(ep => ({...ep, provider: 'k8s'}));
+                        createExecutableEndpointCards(k8sEndpoints, endpointContainer);
+                        
+                        // List all endpoints
+                        data.endpoints.available_endpoints.forEach(endpoint => {
+                            const status = endpoint.provider_verified ? '✅' : '❌';
+                            const errorInfo = endpoint.provider_error ? ` (${endpoint.provider_error})` : '';
+                            addLogEntry(`  ${status} ${endpoint.method} ${endpoint.endpoint}${errorInfo}`, endpoint.provider_verified ? 'success' : 'warn');
+                        });
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                discoveryData.className = 'response-body response-error';
+                discoveryData.innerHTML = `K8s Discovery Error: ${error.message}`;
+                addLogEntry(`❌ K8s endpoint discovery failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // CREATE EXECUTABLE ENDPOINT CARDS
+        function createExecutableEndpointCards(endpoints, container) {
+            container.innerHTML = '';
+            
+            endpoints.forEach((endpoint, index) => {
+                const statusIcon = endpoint.provider_verified ? '✅' : '❌';
+                const providerIcon = endpoint.provider === 'aws' ? '🟠' : endpoint.provider === 'gcp' ? '🌐' : '⚓';
+                
+                const card = document.createElement('div');
+                card.className = 'api-card';
+                card.innerHTML = `
+                    <div class="api-method method-${endpoint.method.toLowerCase()}">${endpoint.method}</div>
+                    <div class="api-path">${providerIcon} ${endpoint.endpoint} ${statusIcon}</div>
+                    <div class="api-description">${endpoint.description}</div>
+                    <div style="color: var(--neon-cyan); font-size: 0.8rem; margin: 0.5rem 0;">
+                        Provider: ${endpoint.provider.toUpperCase()} | Verified: ${endpoint.provider_verified ? 'YES' : 'NO'}
+                        ${endpoint.current_account ? `<br>Account: ${endpoint.current_account}` : ''}
+                        ${endpoint.current_project ? `<br>Project: ${endpoint.current_project}` : ''}
+                        ${endpoint.parameters ? `<br>Params: ${endpoint.parameters.join(', ')}` : ''}
+                        ${endpoint.provider_error ? `<br>Error: ${endpoint.provider_error}` : ''}
+                    </div>
+                    <button onclick="executeRealEndpoint('${endpoint.endpoint}', '${endpoint.method}', ${index})" class="test-button">
+                        🧪 EXECUTE REAL ENDPOINT
+                    </button>
+                    <div class="response-container" id="exec-response-${index}" style="display: none;"></div>
+                `;
+                container.appendChild(card);
+            });
+            
+            addLogEntry(`🎯 Created ${endpoints.length} executable endpoint cards`, 'success');
+        }
+        
+        // EXECUTE REAL ENDPOINT
+        async function executeRealEndpoint(endpoint, method, cardIndex) {
+            const responseContainer = document.getElementById(`exec-response-${cardIndex}`);
+            responseContainer.style.display = 'block';
+            responseContainer.innerHTML = '<div class="response-header">Executing...</div>';
+            
+            addLogEntry(`🧪 EXECUTING REAL ENDPOINT: ${method} ${endpoint}`, 'info');
+            
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                };
+                
+                // Add body for POST requests if needed
+                if (method === 'POST' && endpoint.includes('/auth')) {
+                    if (endpoint.includes('aws')) {
+                        options.body = JSON.stringify({ provider: 'aws' });
+                    } else if (endpoint.includes('gcp')) {
+                        options.body = JSON.stringify({ provider: 'gcp' });
+                    }
+                }
+                
+                const response = await fetch(endpoint, options);
+                const data = await response.json();
+                
+                const statusClass = response.ok ? 'response-success' : 'response-error';
+                const statusIcon = response.ok ? '✅' : '❌';
+                
+                responseContainer.innerHTML = `
+                    <div class="response-header">
+                        ${statusIcon} REAL EXECUTION - Status: ${response.status} | ${new Date().toLocaleTimeString()}
+                    </div>
+                    <div class="response-body ${statusClass}">
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                `;
+                
+                addLogEntry(`${statusIcon} ${method} ${endpoint} - ${response.status}`, response.ok ? 'success' : 'error');
+                
+                // Log interesting data
+                if (data.active_account) {
+                    addLogEntry(`  🔐 Account: ${data.active_account}`, 'success');
+                }
+                if (data.current_project) {
+                    addLogEntry(`  📋 Project: ${data.current_project}`, 'success');
+                }
+                if (data.profiles) {
+                    const profileCount = Object.keys(data.profiles).length;
+                    addLogEntry(`  📊 Found ${profileCount} profiles`, 'info');
+                }
+                
+            } catch (error) {
+                responseContainer.innerHTML = `
+                    <div class="response-header">
+                        ❌ EXECUTION FAILED | ${new Date().toLocaleTimeString()}
+                    </div>
+                    <div class="response-body response-error">
+                        Error: ${error.message}
+                    </div>
+                `;
+                addLogEntry(`❌ ${method} ${endpoint} failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // COMPREHENSIVE ENDPOINT TESTING & FLAW COLLECTION
+        let comprehensiveTestResults = {
+            tested_endpoints: [],
+            working_endpoints: [],
+            failed_endpoints: [],
+            discovered_flaws: [],
+            fix_recommendations: [],
+            test_timestamp: null
+        };
+        
+        async function executeAllEndpointsAndCollectFlaws() {
+            addLogEntry('🗺 STARTING COMPREHENSIVE ENDPOINT TESTING...', 'info');
+            
+            const testResultsContainer = document.getElementById('comprehensive-test-results');
+            const testSummary = document.getElementById('test-summary');
+            
+            testResultsContainer.style.display = 'block';
+            testSummary.innerHTML = 'Running comprehensive tests...';
+            
+            // Reset results
+            comprehensiveTestResults = {
+                tested_endpoints: [],
+                working_endpoints: [],
+                failed_endpoints: [],
+                discovered_flaws: [],
+                fix_recommendations: [],
+                test_timestamp: new Date().toISOString()
+            };
+            
+            try {
+                // Step 1: Discover ALL endpoints
+                addLogEntry('🔍 Step 1: Discovering all provider endpoints...', 'info');
+                
+                const awsResponse = await fetch('/api/aws/endpoints');
+                const awsData = await awsResponse.json();
+                
+                const gcpResponse = await fetch('/api/gcp/endpoints');
+                const gcpData = await gcpResponse.json();
+                
+                const k8sResponse = await fetch('/api/k8s/endpoints');
+                const k8sData = await k8sResponse.json();
+                
+                let allEndpoints = [];
+                
+                // Collect all endpoints
+                if (awsData.success) {
+                    allEndpoints = allEndpoints.concat(awsData.endpoints.available_endpoints.map(ep => ({...ep, provider: 'aws'})));
+                    addLogEntry(`✅ AWS: ${awsData.endpoints.total_endpoints} endpoints discovered`, 'success');
+                } else {
+                    comprehensiveTestResults.discovered_flaws.push({
+                        type: 'discovery_failure',
+                        provider: 'aws',
+                        error: awsData.error || 'Failed to discover AWS endpoints',
+                        severity: 'high'
+                    });
+                }
+                
+                if (gcpData.success) {
+                    allEndpoints = allEndpoints.concat(gcpData.endpoints.available_endpoints.map(ep => ({...ep, provider: 'gcp'})));
+                    addLogEntry(`✅ GCP: ${gcpData.endpoints.total_endpoints} endpoints discovered`, 'success');
+                } else {
+                    comprehensiveTestResults.discovered_flaws.push({
+                        type: 'discovery_failure',
+                        provider: 'gcp',
+                        error: gcpData.error || 'Failed to discover GCP endpoints',
+                        severity: 'high'
+                    });
+                }
+                
+                if (k8sData.success) {
+                    allEndpoints = allEndpoints.concat(k8sData.endpoints.available_endpoints.map(ep => ({...ep, provider: 'k8s'})));
+                    addLogEntry(`✅ K8s: ${k8sData.endpoints.total_endpoints} endpoints discovered`, 'success');
+                } else {
+                    comprehensiveTestResults.discovered_flaws.push({
+                        type: 'discovery_failure',
+                        provider: 'k8s',
+                        error: k8sData.error || 'Failed to discover K8s endpoints',
+                        severity: 'high'
+                    });
+                }
+                
+                addLogEntry(`🎯 Total endpoints to test: ${allEndpoints.length}`, 'info');
+                
+                // Step 2: Execute ALL endpoints
+                addLogEntry('🧪 Step 2: Executing all discovered endpoints...', 'info');
+                
+                for (let i = 0; i < allEndpoints.length; i++) {
+                    const endpoint = allEndpoints[i];
+                    addLogEntry(`🧪 Testing ${i+1}/${allEndpoints.length}: ${endpoint.method} ${endpoint.endpoint}`, 'info');
+                    
+                    const testResult = await testSingleEndpoint(endpoint);
+                    comprehensiveTestResults.tested_endpoints.push(testResult);
+                    
+                    if (testResult.success) {
+                        comprehensiveTestResults.working_endpoints.push(testResult);
+                        addLogEntry(`✅ ${endpoint.endpoint} - SUCCESS`, 'success');
+                    } else {
+                        comprehensiveTestResults.failed_endpoints.push(testResult);
+                        addLogEntry(`❌ ${endpoint.endpoint} - FAILED: ${testResult.error}`, 'error');
+                        
+                        // Analyze failure and create flaw entry
+                        const flaw = analyzeFlaw(endpoint, testResult);
+                        comprehensiveTestResults.discovered_flaws.push(flaw);
+                    }
+                    
+                    // Small delay to avoid overwhelming the server
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+                // Step 3: Generate fix recommendations
+                generateFixRecommendations();
+                
+                // Step 4: Display comprehensive results
+                displayComprehensiveResults();
+                
+                addLogEntry(`🎯 COMPREHENSIVE TESTING COMPLETE: ${comprehensiveTestResults.working_endpoints.length}/${comprehensiveTestResults.tested_endpoints.length} endpoints working`, comprehensiveTestResults.failed_endpoints.length === 0 ? 'success' : 'warn');
+                
+            } catch (error) {
+                testSummary.className = 'response-body response-error';
+                testSummary.innerHTML = `Comprehensive testing failed: ${error.message}`;
+                addLogEntry(`❌ Comprehensive testing error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testSingleEndpoint(endpoint) {
+            const testResult = {
+                endpoint: endpoint.endpoint,
+                method: endpoint.method,
+                provider: endpoint.provider,
+                provider_verified: endpoint.provider_verified,
+                success: false,
+                status_code: null,
+                response_data: null,
+                error: null,
+                test_timestamp: new Date().toISOString()
+            };
+            
+            try {
+                const options = {
+                    method: endpoint.method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                };
+                
+                // Add appropriate body for POST requests
+                if (endpoint.method === 'POST') {
+                    if (endpoint.endpoint.includes('/auth')) {
+                        if (endpoint.provider === 'aws') {
+                            options.body = JSON.stringify({ provider: 'aws' });
+                        } else if (endpoint.provider === 'gcp') {
+                            options.body = JSON.stringify({ provider: 'gcp' });
+                        }
+                    }
+                }
+                
+                const response = await fetch(endpoint.endpoint, options);
+                const data = await response.json();
+                
+                testResult.success = response.ok;
+                testResult.status_code = response.status;
+                testResult.response_data = data;
+                
+                if (!response.ok) {
+                    testResult.error = `HTTP ${response.status}: ${data.error || data.detail || 'Unknown error'}`;
+                }
+                
+            } catch (error) {
+                testResult.error = `Network/Parse error: ${error.message}`;
+            }
+            
+            return testResult;
+        }
+        
+        function analyzeFlaw(endpoint, testResult) {
+            const flaw = {
+                endpoint: endpoint.endpoint,
+                method: endpoint.method,
+                provider: endpoint.provider,
+                error: testResult.error,
+                status_code: testResult.status_code,
+                type: 'unknown',
+                severity: 'medium',
+                fix_category: 'unknown',
+                description: '',
+                recommended_fix: ''
+            };
+            
+            // Analyze error patterns
+            if (testResult.status_code === 404) {
+                flaw.type = 'endpoint_not_found';
+                flaw.severity = 'high';
+                flaw.fix_category = 'missing_route';
+                flaw.description = 'Endpoint route not implemented in server';
+                flaw.recommended_fix = `Add route handler for ${endpoint.method} ${endpoint.endpoint} in main.py`;
+            } else if (testResult.status_code === 500) {
+                flaw.type = 'server_error';
+                flaw.severity = 'high';
+                flaw.fix_category = 'server_implementation';
+                flaw.description = 'Server-side error in endpoint implementation';
+                flaw.recommended_fix = 'Check server logs and fix implementation bugs';
+            } else if (testResult.status_code === 401 || testResult.status_code === 403) {
+                flaw.type = 'authentication_error';
+                flaw.severity = 'medium';
+                flaw.fix_category = 'authentication';
+                flaw.description = 'Authentication/authorization failure';
+                flaw.recommended_fix = 'Check authentication requirements and provider status';
+            } else if (testResult.error && testResult.error.includes('not available')) {
+                flaw.type = 'provider_unavailable';
+                flaw.severity = 'high';
+                flaw.fix_category = 'provider_setup';
+                flaw.description = 'Provider or controller not properly initialized';
+                flaw.recommended_fix = 'Verify provider initialization in controller registry';
+            } else if (testResult.error && testResult.error.includes('Network')) {
+                flaw.type = 'network_error';
+                flaw.severity = 'low';
+                flaw.fix_category = 'connectivity';
+                flaw.description = 'Network connectivity issue';
+                flaw.recommended_fix = 'Check server is running and accessible';
+            } else if (!endpoint.provider_verified) {
+                flaw.type = 'provider_not_verified';
+                flaw.severity = 'medium';
+                flaw.fix_category = 'provider_verification';
+                flaw.description = 'Endpoint provider not verified during discovery';
+                flaw.recommended_fix = 'Implement proper provider verification in controller';
+            }
+            
+            return flaw;
+        }
+        
+        function generateFixRecommendations() {
+            const flawsByCategory = {};
+            
+            // Group flaws by fix category
+            comprehensiveTestResults.discovered_flaws.forEach(flaw => {
+                if (!flawsByCategory[flaw.fix_category]) {
+                    flawsByCategory[flaw.fix_category] = [];
+                }
+                flawsByCategory[flaw.fix_category].push(flaw);
+            });
+            
+            // Generate recommendations for each category
+            Object.keys(flawsByCategory).forEach(category => {
+                const flaws = flawsByCategory[category];
+                const recommendation = {
+                    category: category,
+                    priority: getHighestSeverity(flaws),
+                    affected_endpoints: flaws.map(f => f.endpoint),
+                    fix_actions: generateCategoryFixes(category, flaws)
+                };
+                
+                comprehensiveTestResults.fix_recommendations.push(recommendation);
+            });
+            
+            // Sort recommendations by priority
+            comprehensiveTestResults.fix_recommendations.sort((a, b) => {
+                const priorities = { high: 3, medium: 2, low: 1 };
+                return priorities[b.priority] - priorities[a.priority];
+            });
+        }
+        
+        function getHighestSeverity(flaws) {
+            if (flaws.some(f => f.severity === 'high')) return 'high';
+            if (flaws.some(f => f.severity === 'medium')) return 'medium';
+            return 'low';
+        }
+        
+        function generateCategoryFixes(category, flaws) {
+            const actions = [];
+            
+            switch (category) {
+                case 'missing_route':
+                    actions.push('Add missing route handlers to main.py');
+                    actions.push('Implement controller methods for discovered endpoints');
+                    actions.push('Update route registration in setup_routes()');
+                    break;
+                case 'server_implementation':
+                    actions.push('Check server logs for detailed error information');
+                    actions.push('Debug controller method implementations');
+                    actions.push('Verify provider method calls and error handling');
+                    break;
+                case 'provider_setup':
+                    actions.push('Verify provider registration in controller registry');
+                    actions.push('Check provider initialization in _setup_architecture()');
+                    actions.push('Ensure provider dependencies are properly configured');
+                    break;
+                case 'authentication':
+                    actions.push('Check provider authentication status');
+                    actions.push('Verify credentials and authentication methods');
+                    actions.push('Test provider login/authentication flows');
+                    break;
+                case 'provider_verification':
+                    actions.push('Implement proper verification methods in controllers');
+                    actions.push('Add real provider capability testing');
+                    actions.push('Remove fake test methods and use actual provider calls');
+                    break;
+            }
+            
+            return actions;
+        }
+        
+        function displayComprehensiveResults() {
+            const testSummary = document.getElementById('test-summary');
+            
+            const workingCount = comprehensiveTestResults.working_endpoints.length;
+            const failedCount = comprehensiveTestResults.failed_endpoints.length;
+            const totalCount = comprehensiveTestResults.tested_endpoints.length;
+            const flawCount = comprehensiveTestResults.discovered_flaws.length;
+            
+            const resultClass = failedCount === 0 ? 'response-success' : 'response-error';
+            
+            testSummary.className = `response-body ${resultClass}`;
+            testSummary.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h3>📊 Test Summary</h3>
+                    <p><strong>Total Endpoints:</strong> ${totalCount}</p>
+                    <p><strong>Working:</strong> ✅ ${workingCount}</p>
+                    <p><strong>Failed:</strong> ❌ ${failedCount}</p>
+                    <p><strong>Success Rate:</strong> ${totalCount > 0 ? Math.round((workingCount/totalCount) * 100) : 0}%</p>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <h3>🚨 Discovered Flaws (${flawCount})</h3>
+                    ${comprehensiveTestResults.discovered_flaws.map(flaw => `
+                        <div style="margin: 0.5rem 0; padding: 0.5rem; border-left: 3px solid var(--neon-pink);">
+                            <strong>${flaw.endpoint}</strong> (${flaw.provider.toUpperCase()}) - ${flaw.severity.toUpperCase()}<br>
+                            <em>${flaw.description}</em><br>
+                            <small>Fix: ${flaw.recommended_fix}</small>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div>
+                    <h3>🔧 Fix Recommendations (${comprehensiveTestResults.fix_recommendations.length})</h3>
+                    ${comprehensiveTestResults.fix_recommendations.map(rec => `
+                        <div style="margin: 0.5rem 0; padding: 0.5rem; border-left: 3px solid var(--neon-cyan);">
+                            <strong>${rec.category.toUpperCase()}</strong> - ${rec.priority.toUpperCase()} PRIORITY<br>
+                            <em>Affects: ${rec.affected_endpoints.join(', ')}</em><br>
+                            <ul style="margin: 0.5rem 0;">
+                                ${rec.fix_actions.map(action => `<li>${action}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-secondary);">
+                    Test completed at: ${comprehensiveTestResults.test_timestamp}
+                </div>
+            `;
+        }
+        
+        let currentReportJSON = null;
+        
+        function generateFixReport() {
+            if (!comprehensiveTestResults.test_timestamp) {
+                addLogEntry('⚠️ Please run comprehensive testing first', 'warn');
+                return;
+            }
+            
+            const report = {
+                test_summary: {
+                    timestamp: comprehensiveTestResults.test_timestamp,
+                    total_endpoints: comprehensiveTestResults.tested_endpoints.length,
+                    working_endpoints: comprehensiveTestResults.working_endpoints.length,
+                    failed_endpoints: comprehensiveTestResults.failed_endpoints.length,
+                    success_rate: comprehensiveTestResults.tested_endpoints.length > 0 ? 
+                        Math.round((comprehensiveTestResults.working_endpoints.length / comprehensiveTestResults.tested_endpoints.length) * 100) : 0
+                },
+                flaws: comprehensiveTestResults.discovered_flaws,
+                fix_recommendations: comprehensiveTestResults.fix_recommendations,
+                detailed_results: comprehensiveTestResults.tested_endpoints
+            };
+            
+            // Store report JSON for copying
+            currentReportJSON = JSON.stringify(report, null, 2);
+            
+            // Display inline JSON report
+            const reportContainer = document.getElementById('fix-report-json');
+            const reportData = document.getElementById('fix-report-data');
+            
+            reportContainer.style.display = 'block';
+            reportData.textContent = currentReportJSON;
+            
+            // Scroll to the report
+            reportContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            addLogEntry('📊 Fix report generated and displayed inline with copy button', 'success');
+        }
+        
+        function copyReportToClipboard() {
+            if (!currentReportJSON) {
+                addLogEntry('⚠️ No report available to copy', 'warn');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentReportJSON).then(() => {
+                addLogEntry('📋 JSON report copied to clipboard!', 'success');
+                
+                // Temporary visual feedback
+                const copyButton = event.target;
+                const originalText = copyButton.textContent;
+                copyButton.textContent = '✅ COPIED!';
+                copyButton.style.background = 'var(--success-color)';
+                
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                    copyButton.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                addLogEntry(`❌ Failed to copy to clipboard: ${err.message}`, 'error');
+                
+                // Fallback: select the text
+                const reportData = document.getElementById('fix-report-data');
+                const range = document.createRange();
+                range.selectNode(reportData);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                addLogEntry('📋 Text selected - use Cmd+C to copy manually', 'info');
+            });
+        }
+
+        // Initialize admin interface with AUTO-DISCOVERY
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProviderStatus();
+            startAutoRefresh();
+            addLogEntry('🚀 APEX Admin initializing...', 'info');
+            
+            // Start comprehensive auto-discovery after a brief delay
+            setTimeout(async () => {
+                await autoDiscoverAndTestSystem();
+                addLogEntry('🎯 APEX Admin fully loaded with REAL system verification!', 'success');
+            }, 1000);
+        });
+        
+        // Load initial provider status
+        async function loadProviderStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Update AWS status indicators
+                if (data.aws && data.aws.authentication && data.aws.authentication.profiles) {
+                    const profiles = data.aws.authentication.profiles;
+                    document.getElementById('aws-dev-status').textContent = profiles.dev?.authenticated ? '✅ AUTHENTICATED' : '❌ NOT AUTHENTICATED';
+                    document.getElementById('aws-stage-status').textContent = profiles.stage?.authenticated ? '✅ AUTHENTICATED' : '❌ NOT AUTHENTICATED';
+                    document.getElementById('aws-prod-status').textContent = profiles.prod?.authenticated ? '✅ AUTHENTICATED' : '❌ NOT AUTHENTICATED';
+                }
+                
+                // Update GCP status indicators
+                if (data.gcp && data.gcp.authentication) {
+                    const gcpAuth = data.gcp.authentication.authenticated;
+                    document.getElementById('gcp-dev-status').textContent = gcpAuth ? '✅ AUTHENTICATED' : '❌ NOT AUTHENTICATED';
+                    document.getElementById('gcp-stage-status').textContent = gcpAuth ? '✅ AUTHENTICATED' : '❌ NOT AUTHENTICATED';
+                    document.getElementById('gcp-prod-status').textContent = gcpAuth ? '✅ AUTHENTICATED' : '❌ NOT AUTHENTICATED';
+                }
+                
+                addLogEntry('Provider status loaded successfully', 'success');
+            } catch (error) {
+                addLogEntry(`Failed to load provider status: ${error.message}`, 'error');
+            }
+        }
+
+        // Show section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked nav item
+            event.target.classList.add('active');
+            
+            addLogEntry(`Switched to ${sectionId} section`, 'info');
+        }
+
+        // NO MORE FAKE ENDPOINTS - Only real discovered endpoints will be shown via discovery buttons
+
+        // NO MORE FAKE ENDPOINT TESTING - Only real discovered endpoints can be tested
+
+        // Execute command
+        async function executeCommand() {
+            const command = document.getElementById('command-input').value;
+            const outputContainer = document.getElementById('command-output');
+            const resultDiv = document.getElementById('command-result');
+            
+            if (!command.trim()) {
+                alert('Please enter a command');
+                return;
+            }
+            
+            try {
+                addLogEntry(`Executing command: ${command}`, 'info');
+                
+                const response = await fetch('/api/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: command })
+                });
+                
+                const data = await response.json();
+                
+                outputContainer.style.display = 'block';
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`Command executed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                outputContainer.style.display = 'block';
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error: ${error.message}`;
+                addLogEntry(`Command error: ${error.message}`, 'error');
+            }
+        }
+
+        // Generate trial license
+        async function generateTrialLicense() {
+            const payload = { 
+                email: 'warp-test-demo@apex.dev', 
+                days: 7 
+            };
+            
+            try {
+                const response = await fetch('/api/license/generate-trial', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                const responseContainer = document.getElementById('response-trial-gen');
+                responseContainer.innerHTML = `
+                    <div class="response-header">
+                        Trial License Generated | ${new Date().toLocaleTimeString()}
+                    </div>
+                    <div class="response-body response-success">
+                        ${JSON.stringify(data, null, 2)}
+                    </div>
+                `;
+                
+                addLogEntry('Trial license generated', 'success');
+                
+            } catch (error) {
+                addLogEntry(`License generation error: ${error.message}`, 'error');
+            }
+        }
+
+        // Refresh system status
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const statusGrid = document.getElementById('status-metrics');
+                statusGrid.innerHTML = `
+                    <div class="status-card">
+                        <div class="status-icon">💚</div>
+                        <div class="status-label">System Health</div>
+                        <div class="status-value">${data.healthy ? 'HEALTHY' : 'UNHEALTHY'}</div>
+                    </div>
+                    <div class="status-card">
+                        <div class="status-icon">🐳</div>
+                        <div class="status-label">kubectl</div>
+                        <div class="status-value">${data.kubectl_available ? 'AVAILABLE' : 'NOT FOUND'}</div>
+                    </div>
+                    <div class="status-card">
+                        <div class="status-icon">⚡</div>
+                        <div class="status-label">Server</div>
+                        <div class="status-value">RUNNING</div>
+                    </div>
+                    <div class="status-card">
+                        <div class="status-icon">🔗</div>
+                        <div class="status-label">API Status</div>
+                        <div class="status-value">${response.ok ? 'ONLINE' : 'OFFLINE'}</div>
+                    </div>
+                `;
+                
+                addLogEntry('Status refreshed successfully', 'success');
+                
+            } catch (error) {
+                addLogEntry(`Status refresh failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Load configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const data = await response.json();
+                
+                const configContent = document.getElementById('config-content');
+                configContent.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry('Configuration loaded', 'info');
+                
+            } catch (error) {
+                const configContent = document.getElementById('config-content');
+                configContent.textContent = `Error loading configuration: ${error.message}`;
+                addLogEntry(`Config load error: ${error.message}`, 'error');
+            }
+        }
+
+        // Execute database query
+        async function executeDbQuery() {
+            const query = document.getElementById('db-query').value;
+            const outputContainer = document.getElementById('db-output');
+            const resultDiv = document.getElementById('db-result');
+            
+            if (!query.trim()) {
+                alert('Please enter a database query');
+                return;
+            }
+            
+            try {
+                // This would connect to your actual database API
+                const response = await fetch('/api/database/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        query: query,
+                        environment: 'dev' 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                outputContainer.style.display = 'block';
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`DB Query executed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                outputContainer.style.display = 'block';
+                resultDiv.className = 'response-body response-warning';
+                resultDiv.textContent = `Database API not available: ${error.message}\n\nNote: Database API endpoints need to be implemented.`;
+                addLogEntry('DB API not yet implemented', 'warn');
+            }
+        }
+
+        // Toggle live logs
+        function toggleLogs() {
+            const button = document.getElementById('log-toggle');
+            
+            if (logInterval) {
+                clearInterval(logInterval);
+                logInterval = null;
+                button.textContent = '🎯 Start Live Logs';
+                addLogEntry('Live logging stopped', 'info');
+            } else {
+                logInterval = setInterval(generateMockLog, 3000);
+                button.textContent = '⏹ Stop Live Logs';
+                addLogEntry('Live logging started', 'success');
+            }
+        }
+
+        // Add log entry
+        function addLogEntry(message, level = 'info') {
+            const logContainer = document.getElementById('live-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-timestamp">${timestamp}</span>
+                <span class="log-level-${level}">${level.toUpperCase()}</span>
+                ${message}
+            `;
+            
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Keep only last 100 log entries
+            while (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+
+        // Generate mock log for demo
+        function generateMockLog() {
+            const mockLogs = [
+                'System health check completed',
+                'API endpoint /api/status responded in 45ms',
+                'License validation check',
+                'Database connection pool status: 5/10 connections active',
+                'Kubectl command cache refreshed',
+                'AWS SSO token refresh scheduled'
+            ];
+            
+            const levels = ['info', 'success', 'warn'];
+            const message = mockLogs[Math.floor(Math.random() * mockLogs.length)];
+            const level = levels[Math.floor(Math.random() * levels.length)];
+            
+            addLogEntry(message, level);
+        }
+
+        // Start auto refresh
+        function startAutoRefresh() {
+            // Auto-refresh status every 30 seconds
+            statusInterval = setInterval(() => {
+                if (document.getElementById('system-status').classList.contains('active')) {
+                    refreshStatus();
+                }
+            }, 30000);
+        }
+
+        // AWS Provider Testing Functions
+        async function testAWSAuth(environment) {
+            addLogEntry(`Testing AWS authentication for ${environment} environment`, 'info');
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                const statusElement = document.getElementById(`aws-${environment}-status`);
+                
+                if (response.ok && data.aws && data.aws.authentication && data.aws.authentication.profiles) {
+                    const profile = data.aws.authentication.profiles[environment];
+                    if (profile && profile.authenticated) {
+                        statusElement.textContent = '✅ AUTHENTICATED';
+                        statusElement.style.color = 'var(--success-color)';
+                        addLogEntry(`AWS ${environment} authentication successful - Account: ${profile.account}`, 'success');
+                    } else {
+                        statusElement.textContent = '❌ FAILED';
+                        statusElement.style.color = 'var(--error-color)';
+                        addLogEntry(`AWS ${environment} authentication failed`, 'error');
+                    }
+                } else {
+                    statusElement.textContent = '❌ ERROR';
+                    statusElement.style.color = 'var(--error-color)';
+                    addLogEntry(`AWS ${environment} status check failed`, 'error');
+                }
+            } catch (error) {
+                const statusElement = document.getElementById(`aws-${environment}-status`);
+                statusElement.textContent = '❌ ERROR';
+                statusElement.style.color = 'var(--error-color)';
+                addLogEntry(`AWS ${environment} test error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAWSCapability(capability) {
+            const outputContainer = document.getElementById('aws-provider-output');
+            const resultDiv = document.getElementById('aws-provider-result');
+            
+            outputContainer.style.display = 'block';
+            resultDiv.textContent = 'Testing AWS capability...';
+            
+            try {
+                let endpoint = '';
+                let payload = {};
+                
+                switch (capability) {
+                    case 'identity':
+                        endpoint = '/api/aws/identity';
+                        break;
+                    case 'profiles':
+                        endpoint = '/api/aws/profiles';
+                        break;
+                    case 'regions':
+                        endpoint = '/api/aws/regions';
+                        break;
+                    case 'switch-profile':
+                        endpoint = '/api/aws/switch-profile';
+                        payload = { profile: 'dev' };
+                        break;
+                }
+                
+                const response = await fetch(endpoint, {
+                    method: Object.keys(payload).length > 0 ? 'POST' : 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: Object.keys(payload).length > 0 ? JSON.stringify(payload) : undefined
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`AWS ${capability} test completed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error testing AWS ${capability}: ${error.message}`;
+                addLogEntry(`AWS ${capability} test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // GCP Provider Testing Functions
+        async function testGCPAuth(project) {
+            addLogEntry(`Testing GCP authentication for ${project} project`, 'info');
+            try {
+                const response = await fetch(`/api/gcp/auth/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project: project })
+                });
+                
+                const data = await response.json();
+                const statusElement = document.getElementById(`gcp-${project}-status`);
+                
+                if (response.ok && data.authenticated) {
+                    statusElement.textContent = '✅ AUTHENTICATED';
+                    statusElement.style.color = 'var(--success-color)';
+                    addLogEntry(`GCP ${project} authentication successful`, 'success');
+                } else {
+                    statusElement.textContent = '❌ FAILED';
+                    statusElement.style.color = 'var(--error-color)';
+                    addLogEntry(`GCP ${project} authentication failed`, 'error');
+                }
+            } catch (error) {
+                const statusElement = document.getElementById(`gcp-${project}-status`);
+                statusElement.textContent = '❌ ERROR';
+                statusElement.style.color = 'var(--error-color)';
+                addLogEntry(`GCP ${project} test error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testGCPCapability(capability) {
+            const outputContainer = document.getElementById('gcp-provider-output');
+            const resultDiv = document.getElementById('gcp-provider-result');
+            
+            outputContainer.style.display = 'block';
+            resultDiv.textContent = 'Testing GCP capability...';
+            
+            try {
+                let endpoint = '';
+                let payload = {};
+                
+                switch (capability) {
+                    case 'auth-list':
+                        endpoint = '/api/gcp/auth';
+                        break;
+                    case 'projects':
+                        endpoint = '/api/gcp/projects';
+                        break;
+                    case 'switch-project':
+                        endpoint = '/api/gcp/switch-project';
+                        payload = { project: 'dev' };
+                        break;
+                    case 'config':
+                        endpoint = '/api/gcp/config';
+                        break;
+                }
+                
+                const response = await fetch(endpoint, {
+                    method: Object.keys(payload).length > 0 ? 'POST' : 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: Object.keys(payload).length > 0 ? JSON.stringify(payload) : undefined
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`GCP ${capability} test completed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error testing GCP ${capability}: ${error.message}`;
+                addLogEntry(`GCP ${capability} test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Kubernetes Provider Testing Functions
+        async function testK8sCapability(capability) {
+            const outputContainer = document.getElementById('k8s-provider-output');
+            const resultDiv = document.getElementById('k8s-provider-result');
+            
+            outputContainer.style.display = 'block';
+            resultDiv.textContent = 'Testing kubectl capability...';
+            
+            try {
+                let command = '';
+                
+                switch (capability) {
+                    case 'cluster-info':
+                        command = 'kubectl cluster-info';
+                        break;
+                    case 'contexts':
+                        command = 'kubectl config get-contexts';
+                        break;
+                    case 'namespaces':
+                        command = 'kubectl get namespaces';
+                        break;
+                    case 'nodes':
+                        command = 'kubectl get nodes';
+                        break;
+                    case 'pods':
+                        command = 'kubectl get pods --all-namespaces --limit=10';
+                        break;
+                    case 'services':
+                        command = 'kubectl get services --all-namespaces';
+                        break;
+                }
+                
+                const response = await fetch('/api/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: command })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`kubectl ${capability} test completed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error testing kubectl ${capability}: ${error.message}`;
+                addLogEntry(`kubectl ${capability} test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Command Helper Functions
+        function setAWSCommand(command) {
+            document.getElementById('aws-command-input').value = command;
+        }
+        
+        function setGCPCommand(command) {
+            document.getElementById('gcp-command-input').value = command;
+        }
+        
+        function setKubectlCommand(command) {
+            document.getElementById('kubectl-command-input').value = command;
+        }
+        
+        // Execute AWS Command
+        async function executeAWSCommand() {
+            const command = document.getElementById('aws-command-input').value;
+            const environment = document.getElementById('aws-env-select').value;
+            const outputContainer = document.getElementById('aws-command-output');
+            const resultDiv = document.getElementById('aws-command-result');
+            
+            if (!command.trim()) {
+                alert('Please enter an AWS command');
+                return;
+            }
+            
+            try {
+                addLogEntry(`Executing AWS command in ${environment}: ${command}`, 'info');
+                
+                const response = await fetch('/api/aws/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        command: command,
+                        environment: environment
+                    })
+                });
+                
+                const data = await response.json();
+                
+                outputContainer.style.display = 'block';
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`AWS command executed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                outputContainer.style.display = 'block';
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error: ${error.message}\n\nTip: Make sure the AWS provider API endpoint is implemented.`;
+                addLogEntry(`AWS command error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Execute GCP Command
+        async function executeGCPCommand() {
+            const command = document.getElementById('gcp-command-input').value;
+            const project = document.getElementById('gcp-project-select').value;
+            const outputContainer = document.getElementById('gcp-command-output');
+            const resultDiv = document.getElementById('gcp-command-result');
+            
+            if (!command.trim()) {
+                alert('Please enter a GCP command');
+                return;
+            }
+            
+            try {
+                addLogEntry(`Executing GCP command in ${project}: ${command}`, 'info');
+                
+                const response = await fetch('/api/gcp/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        command: command,
+                        project: project
+                    })
+                });
+                
+                const data = await response.json();
+                
+                outputContainer.style.display = 'block';
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`GCP command executed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                outputContainer.style.display = 'block';
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error: ${error.message}\n\nTip: Make sure the GCP provider API endpoint is implemented.`;
+                addLogEntry(`GCP command error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Execute kubectl Command
+        async function executeKubectlCommand() {
+            const command = document.getElementById('kubectl-command-input').value;
+            const outputContainer = document.getElementById('kubectl-command-output');
+            const resultDiv = document.getElementById('kubectl-command-result');
+            
+            if (!command.trim()) {
+                alert('Please enter a kubectl command');
+                return;
+            }
+            
+            try {
+                addLogEntry(`Executing kubectl command: ${command}`, 'info');
+                
+                const response = await fetch('/api/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: command })
+                });
+                
+                const data = await response.json();
+                
+                outputContainer.style.display = 'block';
+                resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                addLogEntry(`kubectl command executed: ${response.status}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                outputContainer.style.display = 'block';
+                resultDiv.className = 'response-body response-error';
+                resultDiv.textContent = `Error: ${error.message}`;
+                addLogEntry(`kubectl command error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Cleanup intervals on page unload
+        window.addEventListener('beforeunload', function() {
+            if (logInterval) clearInterval(logInterval);
+            if (statusInterval) clearInterval(statusInterval);
+        });
+    </script>
+</body>
+</html>

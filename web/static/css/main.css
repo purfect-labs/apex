@@ -1,0 +1,41 @@
+/* APEX Command Center - Main Stylesheet */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+/* Import component styles */
+@import 'components/base.css';
+@import 'components/shared/layout.css';
+@import 'components/shared/header.css';
+@import 'components/shared/terminal.css';
+@import 'components/shared/panels.css';
+@import 'components/shared/buttons.css';
+@import 'components/shared/license.css';
+@import 'components/shared/compact.css';
+@import 'components/gcp/kali.css';
+
+/* Legacy class mappings for compatibility */
+.ctl-header { @extend .apex-header; }
+.ctl-container { @extend .apex-container; }
+.ctl-title { @extend .apex-title; }
+
+/* Additional responsive breakpoints */
+@media (max-width: 768px) {
+    .apex-content {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+    }
+    
+    .apex-terminal-section {
+        padding: 0 1rem 1rem 1rem;
+    }
+    
+    .command-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .system-status {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
