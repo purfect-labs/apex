@@ -19,7 +19,7 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
 
     test.describe('Kubernetes Provider Capabilities', () => {
         test('should test kubectl cluster-info capability', async ({ page }) => {
-            console.log('🧪 Testing kubectl cluster-info capability - ');
+            console.log('🧪 Testing kubectl cluster-info capability');
             
             const result = await adminPage.testK8sCapability('clusterInfo');
             
@@ -30,15 +30,19 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
                 result.includes('running at') ||
                 result.includes('control plane')) {
                 console.log('✅ kubectl cluster-info capability validated with real cluster data');
+                expect(result).toMatch(/(Kubernetes|cluster|running at|control plane)/i);
             } else if (result.includes('error') || result.includes('Unable to connect')) {
                 console.log(`⚠️  kubectl cluster-info connection issue: ${result.substring(0, 100)}...`);
+                // This is expected if no cluster is configured
+                expect(result).toMatch(/(error|Unable to connect|connection)/i);
             } else {
-                console.log(`ℹ️  kubectl cluster-info result: ${result.substring(0, 100)}...`);
+                console.log(`❌ kubectl cluster-info unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected kubectl cluster-info result format: ${result}`);
             }
         });
 
         test('should test kubectl contexts capability', async ({ page }) => {
-            console.log('🧪 Testing kubectl contexts capability - ');
+            console.log('🧪 Testing kubectl contexts capability');
             
             const result = await adminPage.testK8sCapability('contexts');
             
@@ -49,15 +53,18 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
                 result.includes('CLUSTER') ||
                 result.includes('*')) {
                 console.log('✅ kubectl contexts capability validated with real context data');
+                expect(result).toMatch(/(CURRENT|NAME|CLUSTER|\*)/i);
             } else if (result.includes('error') || result.includes('No configuration file')) {
                 console.log(`⚠️  kubectl contexts configuration issue: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|No configuration file|no configuration)/i);
             } else {
-                console.log(`ℹ️  kubectl contexts result: ${result.substring(0, 100)}...`);
+                console.log(`❌ kubectl contexts unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected kubectl contexts result format: ${result}`);
             }
         });
 
         test('should test kubectl namespaces capability', async ({ page }) => {
-            console.log('🧪 Testing kubectl namespaces capability - ');
+            console.log('🧪 Testing kubectl namespaces capability');
             
             const result = await adminPage.testK8sCapability('namespaces');
             
@@ -68,15 +75,18 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
                 result.includes('kube-system') ||
                 result.includes('STATUS')) {
                 console.log('✅ kubectl namespaces capability validated with real namespace data');
+                expect(result).toMatch(/(NAME|default|kube-system|STATUS)/i);
             } else if (result.includes('error') || result.includes('connection refused')) {
                 console.log(`⚠️  kubectl namespaces connection issue: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|connection refused|connection)/i);
             } else {
-                console.log(`ℹ️  kubectl namespaces result: ${result.substring(0, 100)}...`);
+                console.log(`❌ kubectl namespaces unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected kubectl namespaces result format: ${result}`);
             }
         });
 
         test('should test kubectl nodes capability', async ({ page }) => {
-            console.log('🧪 Testing kubectl nodes capability - ');
+            console.log('🧪 Testing kubectl nodes capability');
             
             const result = await adminPage.testK8sCapability('nodes');
             
@@ -87,15 +97,18 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
                 result.includes('Ready') ||
                 result.includes('AGE')) {
                 console.log('✅ kubectl nodes capability validated with real node data');
+                expect(result).toMatch(/(NAME|STATUS|Ready|AGE)/i);
             } else if (result.includes('error') || result.includes('Unauthorized')) {
                 console.log(`⚠️  kubectl nodes authorization issue: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|Unauthorized|auth)/i);
             } else {
-                console.log(`ℹ️  kubectl nodes result: ${result.substring(0, 100)}...`);
+                console.log(`❌ kubectl nodes unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected kubectl nodes result format: ${result}`);
             }
         });
 
         test('should test kubectl pods capability', async ({ page }) => {
-            console.log('🧪 Testing kubectl pods capability - ');
+            console.log('🧪 Testing kubectl pods capability');
             
             const result = await adminPage.testK8sCapability('pods');
             
@@ -106,15 +119,18 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
                 result.includes('STATUS') ||
                 result.includes('NAMESPACE')) {
                 console.log('✅ kubectl pods capability validated with real pod data');
+                expect(result).toMatch(/(NAME|READY|STATUS|NAMESPACE)/i);
             } else if (result.includes('error') || result.includes('Forbidden')) {
                 console.log(`⚠️  kubectl pods permission issue: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|Forbidden|permission)/i);
             } else {
-                console.log(`ℹ️  kubectl pods result: ${result.substring(0, 100)}...`);
+                console.log(`❌ kubectl pods unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected kubectl pods result format: ${result}`);
             }
         });
 
         test('should test kubectl services capability', async ({ page }) => {
-            console.log('🧪 Testing kubectl services capability - ');
+            console.log('🧪 Testing kubectl services capability');
             
             const result = await adminPage.testK8sCapability('services');
             
@@ -125,10 +141,13 @@ test.describe('Kubernetes Provider Shadow Tests', () => {
                 result.includes('CLUSTER-IP') ||
                 result.includes('PORT')) {
                 console.log('✅ kubectl services capability validated with real service data');
+                expect(result).toMatch(/(NAME|TYPE|CLUSTER-IP|PORT)/i);
             } else if (result.includes('error') || result.includes('connection')) {
                 console.log(`⚠️  kubectl services connection issue: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|connection)/i);
             } else {
-                console.log(`ℹ️  kubectl services result: ${result.substring(0, 100)}...`);
+                console.log(`❌ kubectl services unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected kubectl services result format: ${result}`);
             }
         });
     });

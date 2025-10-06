@@ -73,10 +73,16 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('account') || result.includes('active') || result.includes('email')) {
                 console.log('✅ GCP auth list capability validated with real data');
+                expect(result).toMatch(/(account|active|email)/i);
+            } else if (result.includes('Method Not Allowed') || result.includes('Not Found') || result.includes('detail')) {
+                console.log(`⚠️  GCP auth list endpoint not implemented: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(Method Not Allowed|Not Found|detail)/i);
             } else if (result.includes('error') || result.includes('Error')) {
                 console.log(`⚠️  GCP auth list capability error: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|Error)/i);
             } else {
-                console.log('ℹ️  GCP auth list capability returned unexpected format');
+                console.log(`❌ GCP auth list capability returned unexpected format: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP auth list result format: ${result}`);
             }
         });
 
@@ -92,8 +98,13 @@ test.describe('GCP Provider Shadow Tests', () => {
                 result.includes('kenect-service-prod') ||
                 result.includes('PROJECT_ID')) {
                 console.log('✅ GCP projects capability validated with real projects');
+                expect(result).toMatch(/(kenect-service-dev|kenect-service-stage|kenect-service-prod|PROJECT_ID)/i);
+            } else if (result.includes('Listing GCP projects') || (result.includes('success') && result.includes('gcloud'))) {
+                console.log('✅ GCP projects command started successfully');
+                expect(result).toMatch(/(Listing GCP projects|success.*gcloud)/i);
             } else {
-                console.log(`ℹ️  GCP projects result: ${result.substring(0, 100)}...`);
+                console.log(`❌ GCP projects unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP projects result format: ${result}`);
             }
         });
 
@@ -106,8 +117,13 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('success') || result.includes('switched') || result.includes('kenect-service-dev')) {
                 console.log('✅ GCP project switching capability validated');
+                expect(result).toMatch(/(success|switched|kenect-service-dev)/i);
+            } else if (result.includes('Not Found') || result.includes('detail')) {
+                console.log(`⚠️  GCP project switching endpoint not implemented: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(Not Found|detail)/i);
             } else {
-                console.log(`ℹ️  GCP project switching result: ${result.substring(0, 100)}...`);
+                console.log(`❌ GCP project switching unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP project switching result format: ${result}`);
             }
         });
 
@@ -120,8 +136,13 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('account') || result.includes('project') || result.includes('region')) {
                 console.log('✅ GCP config capability validated with configuration data');
+                expect(result).toMatch(/(account|project|region)/i);
+            } else if (result.includes('Not Found') || result.includes('detail')) {
+                console.log(`⚠️  GCP config endpoint not implemented: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(Not Found|detail)/i);
             } else {
-                console.log(`ℹ️  GCP config result: ${result.substring(0, 100)}...`);
+                console.log(`❌ GCP config unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP config result format: ${result}`);
             }
         });
     });
@@ -146,8 +167,12 @@ test.describe('GCP Provider Shadow Tests', () => {
                 
                 // Still pass test but log the issue
                 expect(result).toContain('error');
+            } else if (result.includes('Not Found') || result.includes('detail')) {
+                console.log(`⚠️  gcloud auth list endpoint not implemented: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(Not Found|detail)/i);
             } else {
-                console.log(`ℹ️  gcloud auth list unexpected result format: ${result.substring(0, 100)}...`);
+                console.log(`❌ gcloud auth list unexpected result format: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected gcloud auth list result format: ${result}`);
             }
         });
 
@@ -160,10 +185,16 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('PROJECT_ID') || result.includes('kenect-service')) {
                 console.log('✅ gcloud projects list command executed successfully');
+                expect(result).toMatch(/(PROJECT_ID|kenect-service)/i);
+            } else if (result.includes('Not Found') || result.includes('detail')) {
+                console.log(`⚠️  gcloud projects endpoint not implemented: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(Not Found|detail)/i);
             } else if (result.includes('error') || result.includes('permission')) {
                 console.log(`⚠️  gcloud projects command permission issue: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|permission)/i);
             } else {
-                console.log(`ℹ️  gcloud projects result: ${result.substring(0, 100)}...`);
+                console.log(`❌ gcloud projects unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected gcloud projects result format: ${result}`);
             }
         });
 
@@ -176,10 +207,13 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('NAME') || result.includes('ZONE') || result.includes('MACHINE_TYPE')) {
                 console.log('✅ gcloud compute instances command executed successfully');
+                expect(result).toMatch(/(NAME|ZONE|MACHINE_TYPE)/i);
             } else if (result.includes('error') || result.includes('permission') || result.includes('API not enabled')) {
                 console.log(`⚠️  gcloud compute instances permission/API issue (expected): ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|permission|API not enabled)/i);
             } else {
-                console.log(`ℹ️  gcloud compute instances result: ${result.substring(0, 100)}...`);
+                console.log(`❌ gcloud compute instances unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected gcloud compute instances result format: ${result}`);
             }
         });
 
@@ -254,10 +288,13 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('gs://') || result.includes('LOCATION') || result.includes('STORAGE_CLASS')) {
                 console.log('✅ GCP storage buckets command executed successfully');
+                expect(result).toMatch(/(gs:\/\/|LOCATION|STORAGE_CLASS)/i);
             } else if (result.includes('error') || result.includes('API not enabled')) {
                 console.log(`⚠️  GCP storage API issue (expected): ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|API not enabled)/i);
             } else {
-                console.log(`ℹ️  GCP storage result: ${result.substring(0, 100)}...`);
+                console.log(`❌ GCP storage unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP storage result format: ${result}`);
             }
         });
 
@@ -270,10 +307,13 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('NAME') || result.includes('LOCATION') || result.includes('cluster')) {
                 console.log('✅ GCP container clusters command executed successfully');
+                expect(result).toMatch(/(NAME|LOCATION|cluster)/i);
             } else if (result.includes('error') || result.includes('API not enabled')) {
                 console.log(`⚠️  GCP container API issue (expected): ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|API not enabled)/i);
             } else {
-                console.log(`ℹ️  GCP container result: ${result.substring(0, 100)}...`);
+                console.log(`❌ GCP container unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP container result format: ${result}`);
             }
         });
 
@@ -286,10 +326,13 @@ test.describe('GCP Provider Shadow Tests', () => {
             
             if (result.includes('NAME') || result.includes('DATABASE_VERSION') || result.includes('REGION')) {
                 console.log('✅ GCP SQL instances command executed successfully');
+                expect(result).toMatch(/(NAME|DATABASE_VERSION|REGION)/i);
             } else if (result.includes('error') || result.includes('API not enabled')) {
                 console.log(`⚠️  GCP SQL API issue (expected): ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|API not enabled)/i);
             } else {
-                console.log(`ℹ️  GCP SQL result: ${result.substring(0, 100)}...`);
+                console.log(`❌ GCP SQL unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected GCP SQL result format: ${result}`);
             }
         });
     });

@@ -31,12 +31,15 @@ class AWSAuth(BaseProvider):
             # This ensures SSO links are shown even if already authenticated
             
             # Start authentication process
+            import time
+            current_timestamp = str(time.time())
+            
             await self.broadcast_message({
                 'type': 'aws_auth_started',
                 'data': {
                     'profile': profile,
                     'message': f'🔐 Starting AWS SSO login for profile: {profile}',
-                    'timestamp': status.get('timestamp')
+                    'timestamp': current_timestamp
                 }
             })
             
@@ -45,7 +48,7 @@ class AWSAuth(BaseProvider):
                 'data': {
                     'output': '🌐 Your browser should open automatically for SSO login...',
                     'profile': profile,
-                    'timestamp': status.get('timestamp')
+                    'timestamp': current_timestamp
                 }
             })
             
@@ -78,7 +81,7 @@ class AWSAuth(BaseProvider):
                         'data': {
                             'profile': profile,
                             'error': error_msg,
-                            'timestamp': result.get('timestamp')
+                            'timestamp': current_timestamp
                         }
                     })
                     return {'success': False, 'error': error_msg}
@@ -100,7 +103,7 @@ class AWSAuth(BaseProvider):
                 'data': {
                     'profile': profile,
                     'error': error_msg,
-                    'timestamp': result.get('timestamp')
+                    'timestamp': current_timestamp
                 }
             })
             return {'success': False, 'error': error_msg}

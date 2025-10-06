@@ -2024,7 +2024,10 @@
             const resultDiv = document.getElementById('aws-provider-result');
             
             outputContainer.style.display = 'block';
+            resultDiv.className = 'response-body';
             resultDiv.textContent = 'Testing AWS capability...';
+            
+            addLogEntry(`🧪 Testing AWS ${capability} capability...`, 'info');
             
             try {
                 let endpoint = '';
@@ -2054,15 +2057,19 @@
                 
                 const data = await response.json();
                 
+                // Always update the display with the actual response, ensuring we don't show the placeholder
                 resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
                 resultDiv.textContent = JSON.stringify(data, null, 2);
                 
-                addLogEntry(`AWS ${capability} test completed: ${response.status}`, response.ok ? 'success' : 'error');
+                addLogEntry(`${response.ok ? '✅' : '❌'} AWS ${capability} test: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                // Give a short delay to ensure UI updates properly
+                await new Promise(resolve => setTimeout(resolve, 100));
                 
             } catch (error) {
                 resultDiv.className = 'response-body response-error';
                 resultDiv.textContent = `Error testing AWS ${capability}: ${error.message}`;
-                addLogEntry(`AWS ${capability} test failed: ${error.message}`, 'error');
+                addLogEntry(`❌ AWS ${capability} test failed: ${error.message}`, 'error');
             }
         }
         
@@ -2101,7 +2108,10 @@
             const resultDiv = document.getElementById('gcp-provider-result');
             
             outputContainer.style.display = 'block';
+            resultDiv.className = 'response-body';
             resultDiv.textContent = 'Testing GCP capability...';
+            
+            addLogEntry(`🧪 Testing GCP ${capability} capability...`, 'info');
             
             try {
                 let endpoint = '';
@@ -2116,7 +2126,7 @@
                         break;
                     case 'switch-project':
                         endpoint = '/api/gcp/switch-project';
-                        payload = { project: 'dev' };
+                        payload = { project: 'dev', env: 'dev' };
                         break;
                     case 'config':
                         endpoint = '/api/gcp/config';
@@ -2131,15 +2141,19 @@
                 
                 const data = await response.json();
                 
+                // Always update the display with the actual response
                 resultDiv.className = `response-body ${response.ok ? 'response-success' : 'response-error'}`;
                 resultDiv.textContent = JSON.stringify(data, null, 2);
                 
-                addLogEntry(`GCP ${capability} test completed: ${response.status}`, response.ok ? 'success' : 'error');
+                addLogEntry(`${response.ok ? '✅' : '❌'} GCP ${capability} test: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                // Give a short delay to ensure UI updates properly
+                await new Promise(resolve => setTimeout(resolve, 100));
                 
             } catch (error) {
                 resultDiv.className = 'response-body response-error';
                 resultDiv.textContent = `Error testing GCP ${capability}: ${error.message}`;
-                addLogEntry(`GCP ${capability} test failed: ${error.message}`, 'error');
+                addLogEntry(`❌ GCP ${capability} test failed: ${error.message}`, 'error');
             }
         }
         

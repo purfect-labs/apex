@@ -91,7 +91,7 @@ class K8sController(BaseController):
                                 "provider_verified": True
                             },
                             {
-                                "endpoint": "/api/k8s/switch-context",
+                                "endpoint": "/api/k8s/context/switch",
                                 "method": "POST",
                                 "description": "Switch kubectl context (kubectl verified)",
                                 "requires_auth": True,
@@ -103,6 +103,14 @@ class K8sController(BaseController):
                                 "method": "GET",
                                 "description": "Get cluster information (kubectl verified)",
                                 "requires_auth": True,
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/resources/{resource_type}",
+                                "method": "GET",
+                                "description": "Universal GET for any K8s resource type (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["resource_type", "env?", "namespace?"],
                                 "provider_verified": True
                             },
                             {
@@ -135,6 +143,62 @@ class K8sController(BaseController):
                                 "description": "List all namespaces (kubectl verified)",
                                 "requires_auth": True,
                                 "parameters": ["env?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/configmaps",
+                                "method": "GET",
+                                "description": "List configmaps in namespace (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["env?", "namespace?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/secrets",
+                                "method": "GET",
+                                "description": "List secrets in namespace (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["env?", "namespace?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/ingresses",
+                                "method": "GET",
+                                "description": "List ingresses in namespace (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["env?", "namespace?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/resources/{resource_type}/{resource_name}",
+                                "method": "DELETE",
+                                "description": "Delete specific K8s resource (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["resource_type", "resource_name", "env?", "namespace?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/resources/{resource_type}/{resource_name}",
+                                "method": "PATCH",
+                                "description": "Patch K8s resource with JSON data (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["resource_type", "resource_name", "patch", "env?", "namespace?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/pods/{pod_name}/logs",
+                                "method": "GET",
+                                "description": "Get logs from pod (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["pod_name", "env?", "namespace?", "tail?"],
+                                "provider_verified": True
+                            },
+                            {
+                                "endpoint": "/api/k8s/auth/{env}",
+                                "method": "POST",
+                                "description": "Authenticate kubectl with environment cluster (kubectl verified)",
+                                "requires_auth": True,
+                                "parameters": ["env"],
                                 "provider_verified": True
                             }
                         ])
@@ -196,14 +260,130 @@ class K8sController(BaseController):
             except Exception as e:
                 await self.log_action("kubectl_raw_discovery_failed", {"error": str(e)})
             
+            # Add our comprehensive K8s resource management endpoints
+            comprehensive_endpoints = [
+                {
+                    "endpoint": "/api/k8s/contexts",
+                    "method": "GET",
+                    "description": "List available kubectl contexts",
+                    "requires_auth": False,
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/context/switch",
+                    "method": "POST", 
+                    "description": "Switch kubectl context",
+                    "requires_auth": True,
+                    "parameters": ["context"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/resources/{resource_type}",
+                    "method": "GET",
+                    "description": "Universal GET for any K8s resource (pods, services, etc.)",
+                    "requires_auth": True,
+                    "parameters": ["resource_type", "env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/pods",
+                    "method": "GET",
+                    "description": "Get pods in namespace",
+                    "requires_auth": True,
+                    "parameters": ["env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/services", 
+                    "method": "GET",
+                    "description": "Get services in namespace",
+                    "requires_auth": True,
+                    "parameters": ["env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/deployments",
+                    "method": "GET", 
+                    "description": "Get deployments in namespace",
+                    "requires_auth": True,
+                    "parameters": ["env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/namespaces",
+                    "method": "GET",
+                    "description": "Get all namespaces", 
+                    "requires_auth": True,
+                    "parameters": ["env?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/configmaps",
+                    "method": "GET",
+                    "description": "Get configmaps in namespace",
+                    "requires_auth": True,
+                    "parameters": ["env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/secrets",
+                    "method": "GET",
+                    "description": "Get secrets in namespace",
+                    "requires_auth": True,
+                    "parameters": ["env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/ingresses",
+                    "method": "GET", 
+                    "description": "Get ingresses in namespace",
+                    "requires_auth": True,
+                    "parameters": ["env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/resources/{resource_type}/{resource_name}",
+                    "method": "DELETE",
+                    "description": "Delete specific K8s resource",
+                    "requires_auth": True,
+                    "parameters": ["resource_type", "resource_name", "env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/resources/{resource_type}/{resource_name}",
+                    "method": "PATCH",
+                    "description": "Patch K8s resource with JSON data",
+                    "requires_auth": True,
+                    "parameters": ["resource_type", "resource_name", "patch", "env?", "namespace?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/pods/{pod_name}/logs",
+                    "method": "GET",
+                    "description": "Get logs from pod",
+                    "requires_auth": True,
+                    "parameters": ["pod_name", "env?", "namespace?", "tail?"],
+                    "provider_verified": True
+                },
+                {
+                    "endpoint": "/api/k8s/auth/{env}",
+                    "method": "POST",
+                    "description": "Authenticate kubectl with environment cluster",
+                    "requires_auth": True,
+                    "parameters": ["env"],
+                    "provider_verified": True
+                }
+            ]
+            
+            # Add comprehensive endpoints to the main list
+            endpoints["available_endpoints"].extend(comprehensive_endpoints)
+            
             endpoints["total_endpoints"] = len(endpoints["available_endpoints"])
             endpoints["verified_endpoints"] = len([ep for ep in endpoints["available_endpoints"] if ep.get("provider_verified", False)])
-            endpoints["kubectl_functional"] = endpoints["verified_endpoints"] > 3  # More than basic endpoints means kubectl works
             
             await self.log_action("discover_k8s_endpoints_success", {
                 "endpoint_count": endpoints["total_endpoints"],
-                "verified_count": endpoints["verified_endpoints"],
-                "kubectl_functional": endpoints["kubectl_functional"]
+                "verified_count": endpoints["verified_endpoints"]
             })
             
             return {"success": True, "endpoints": endpoints}
@@ -234,384 +414,202 @@ class K8sController(BaseController):
             await self.handle_error(f"K8s status check error: {str(e)}", "status")
             return {"error": str(e)}
     
-    async def get_pods(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
-        """Get pods in namespace with environment safety"""
+    # Context Management
+    async def list_contexts(self, **kwargs) -> Dict[str, Any]:
+        """List available kubectl contexts"""
         try:
-            env = env or self.current_env
+            await self.log_action("list_contexts_start")
             
-            if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "get_pods")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_get_pods_start", {"env": env, "namespace": namespace})
-            
-            # Get K8s operations provider
             k8s_ops = self.get_provider("k8s_operations")
             if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "get_pods")
-                return {"success": False, "error": error_msg}
+                return {"success": False, "error": "K8s operations provider not available"}
             
-            # Execute with context safety
-            result = await k8s_ops.get_pods(env=env, namespace=namespace, **kwargs)
+            return await k8s_ops.list_contexts()
             
-            if result.get("success", True):
-                # Parse and enhance pod data if JSON returned
-                if 'stdout' in result and result['stdout']:
-                    try:
-                        import json
-                        pod_data = json.loads(result['stdout'])
-                        result['pods'] = pod_data.get('items', [])
-                        result['pod_count'] = len(result['pods'])
-                    except json.JSONDecodeError:
-                        # Keep raw output if not JSON
-                        pass
-                
-                await self.log_action("k8s_get_pods_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "pod_count": result.get("pod_count", 0)
-                })
-            else:
-                await self.handle_error(result.get("error", "Failed to get pods"), "get_pods")
+        except Exception as e:
+            error_msg = f"List contexts error: {str(e)}"
+            await self.handle_error(error_msg, "contexts")
+            return {"success": False, "error": error_msg}
+    
+    async def switch_context(self, context: str, **kwargs) -> Dict[str, Any]:
+        """Switch kubectl context"""
+        try:
+            await self.log_action("switch_context", {"context": context})
+            
+            k8s_ops = self.get_provider("k8s_operations")
+            if not k8s_ops:
+                return {"success": False, "error": "K8s operations provider not available"}
+            
+            result = await k8s_ops.switch_context(context)
+            
+            if result.get("success", False):
+                self.current_context = context
+                await self.log_action("switch_context_success", {"context": context})
             
             return result
             
         except Exception as e:
-            error_msg = f"K8s get pods controller error: {str(e)}"
-            await self.handle_error(error_msg, "get_pods")
+            error_msg = f"Switch context error: {str(e)}"
+            await self.handle_error(error_msg, "context_switch")
             return {"success": False, "error": error_msg}
+    
+    # Resource Management - GET operations
+    async def get_resources(self, resource_type: str, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Universal GET method for K8s resources (pods, services, deployments, etc.)"""
+        try:
+            env = env or self.current_env
+            if not validate_environment(env):
+                return {"success": False, "error": f"Invalid environment: {env}"}
+            
+            await self.log_action("get_resources", {"type": resource_type, "env": env, "namespace": namespace})
+            
+            k8s_ops = self.get_provider("k8s_operations")
+            if not k8s_ops:
+                return {"success": False, "error": "K8s operations provider not available"}
+            
+            return await k8s_ops.get_resources(resource_type, env, namespace)
+            
+        except Exception as e:
+            error_msg = f"Get {resource_type} error: {str(e)}"
+            await self.handle_error(error_msg, "resources")
+            return {"success": False, "error": error_msg}
+    
+    # Specific resource methods for convenience
+    async def get_pods(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Get pods in namespace"""
+        return await self.get_resources("pods", env, namespace)
     
     async def get_services(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
-        """Get services in namespace with environment safety"""
-        try:
-            env = env or self.current_env
-            
-            if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "get_services")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_get_services_start", {"env": env, "namespace": namespace})
-            
-            k8s_ops = self.get_provider("k8s_operations")
-            if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "get_services")
-                return {"success": False, "error": error_msg}
-            
-            result = await k8s_ops.get_services(env=env, namespace=namespace, **kwargs)
-            
-            if result.get("success", True):
-                # Parse and enhance service data if JSON returned
-                if 'stdout' in result and result['stdout']:
-                    try:
-                        import json
-                        service_data = json.loads(result['stdout'])
-                        result['services'] = service_data.get('items', [])
-                        result['service_count'] = len(result['services'])
-                    except json.JSONDecodeError:
-                        pass
-                
-                await self.log_action("k8s_get_services_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "service_count": result.get("service_count", 0)
-                })
-            
-            return result
-            
-        except Exception as e:
-            error_msg = f"K8s get services controller error: {str(e)}"
-            await self.handle_error(error_msg, "get_services")
-            return {"success": False, "error": error_msg}
+        """Get services in namespace"""
+        return await self.get_resources("services", env, namespace)
     
     async def get_deployments(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
-        """Get deployments in namespace with environment safety"""
-        try:
-            env = env or self.current_env
-            
-            if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "get_deployments")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_get_deployments_start", {"env": env, "namespace": namespace})
-            
-            k8s_ops = self.get_provider("k8s_operations")
-            if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "get_deployments")
-                return {"success": False, "error": error_msg}
-            
-            result = await k8s_ops.get_deployments(env=env, namespace=namespace, **kwargs)
-            
-            if result.get("success", True):
-                # Parse and enhance deployment data if JSON returned
-                if 'stdout' in result and result['stdout']:
-                    try:
-                        import json
-                        deployment_data = json.loads(result['stdout'])
-                        result['deployments'] = deployment_data.get('items', [])
-                        result['deployment_count'] = len(result['deployments'])
-                    except json.JSONDecodeError:
-                        pass
-                
-                await self.log_action("k8s_get_deployments_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "deployment_count": result.get("deployment_count", 0)
-                })
-            
-            return result
-            
-        except Exception as e:
-            error_msg = f"K8s get deployments controller error: {str(e)}"
-            await self.handle_error(error_msg, "get_deployments")
-            return {"success": False, "error": error_msg}
+        """Get deployments in namespace"""
+        return await self.get_resources("deployments", env, namespace)
     
     async def get_namespaces(self, env: str = None, **kwargs) -> Dict[str, Any]:
-        """Get all namespaces with environment safety"""
-        try:
-            env = env or self.current_env
-            
-            if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "get_namespaces")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_get_namespaces_start", {"env": env})
-            
-            k8s_ops = self.get_provider("k8s_operations")
-            if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "get_namespaces")
-                return {"success": False, "error": error_msg}
-            
-            result = await k8s_ops.get_namespaces(env=env, **kwargs)
-            
-            if result.get("success", True):
-                # Parse and enhance namespace data if JSON returned
-                if 'stdout' in result and result['stdout']:
-                    try:
-                        import json
-                        namespace_data = json.loads(result['stdout'])
-                        result['namespaces'] = namespace_data.get('items', [])
-                        result['namespace_count'] = len(result['namespaces'])
-                    except json.JSONDecodeError:
-                        pass
-                
-                await self.log_action("k8s_get_namespaces_success", {
-                    "env": env,
-                    "namespace_count": result.get("namespace_count", 0)
-                })
-            
-            return result
-            
-        except Exception as e:
-            error_msg = f"K8s get namespaces controller error: {str(e)}"
-            await self.handle_error(error_msg, "get_namespaces")
-            return {"success": False, "error": error_msg}
+        """Get all namespaces"""
+        return await self.get_resources("namespaces", env, "")
     
-    async def describe_pod(self, pod_name: str, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
-        """Describe specific pod with environment safety"""
-        try:
-            env = env or self.current_env
-            
-            if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "describe_pod")
-                return {"success": False, "error": error_msg}
-            
-            if not pod_name:
-                error_msg = "Pod name is required"
-                await self.handle_error(error_msg, "describe_pod")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_describe_pod_start", {"env": env, "namespace": namespace, "pod_name": pod_name})
-            
-            k8s_ops = self.get_provider("k8s_operations")
-            if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "describe_pod")
-                return {"success": False, "error": error_msg}
-            
-            result = await k8s_ops.describe_pod(env=env, pod_name=pod_name, namespace=namespace, **kwargs)
-            
-            if result.get("success", True):
-                await self.log_action("k8s_describe_pod_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "pod_name": pod_name
-                })
-            
-            return result
-            
-        except Exception as e:
-            error_msg = f"K8s describe pod controller error: {str(e)}"
-            await self.handle_error(error_msg, "describe_pod")
-            return {"success": False, "error": error_msg}
+    async def get_configmaps(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Get configmaps in namespace"""
+        return await self.get_resources("configmaps", env, namespace)
     
-    async def get_logs(self, pod_name: str, env: str = None, namespace: str = "default", tail: int = 100, **kwargs) -> Dict[str, Any]:
-        """Get pod logs with environment safety"""
+    async def get_secrets(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Get secrets in namespace"""
+        return await self.get_resources("secrets", env, namespace)
+    
+    async def get_ingresses(self, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Get ingresses in namespace"""
+        return await self.get_resources("ingresses", env, namespace)
+    
+    # Resource Operations
+    async def delete_resource(self, resource_type: str, resource_name: str, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Delete a specific K8s resource"""
         try:
             env = env or self.current_env
-            
             if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "get_logs")
-                return {"success": False, "error": error_msg}
+                return {"success": False, "error": f"Invalid environment: {env}"}
             
-            if not pod_name:
-                error_msg = "Pod name is required"
-                await self.handle_error(error_msg, "get_logs")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_get_logs_start", {
+            await self.log_action("delete_resource", {
+                "type": resource_type, 
+                "name": resource_name, 
                 "env": env, 
-                "namespace": namespace, 
-                "pod_name": pod_name, 
+                "namespace": namespace
+            })
+            
+            k8s_ops = self.get_provider("k8s_operations")
+            if not k8s_ops:
+                return {"success": False, "error": "K8s operations provider not available"}
+            
+            return await k8s_ops.delete_resource(resource_type, resource_name, env, namespace)
+            
+        except Exception as e:
+            error_msg = f"Delete {resource_type}/{resource_name} error: {str(e)}"
+            await self.handle_error(error_msg, "delete")
+            return {"success": False, "error": error_msg}
+    
+    async def patch_resource(self, resource_type: str, resource_name: str, patch_data: Dict[str, Any], env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Patch a K8s resource"""
+        try:
+            env = env or self.current_env
+            if not validate_environment(env):
+                return {"success": False, "error": f"Invalid environment: {env}"}
+            
+            await self.log_action("patch_resource", {
+                "type": resource_type,
+                "name": resource_name,
+                "env": env,
+                "namespace": namespace,
+                "patch_keys": list(patch_data.keys())
+            })
+            
+            k8s_ops = self.get_provider("k8s_operations")
+            if not k8s_ops:
+                return {"success": False, "error": "K8s operations provider not available"}
+            
+            return await k8s_ops.patch_resource(resource_type, resource_name, patch_data, env, namespace)
+            
+        except Exception as e:
+            error_msg = f"Patch {resource_type}/{resource_name} error: {str(e)}"
+            await self.handle_error(error_msg, "patch")
+            return {"success": False, "error": error_msg}
+    
+    # Pod-specific operations
+    async def get_pod_logs(self, pod_name: str, env: str = None, namespace: str = "default", tail: int = 100, **kwargs) -> Dict[str, Any]:
+        """Get logs from a pod"""
+        try:
+            env = env or self.current_env
+            if not validate_environment(env):
+                return {"success": False, "error": f"Invalid environment: {env}"}
+            
+            await self.log_action("get_pod_logs", {
+                "pod": pod_name,
+                "env": env,
+                "namespace": namespace,
                 "tail": tail
             })
             
             k8s_ops = self.get_provider("k8s_operations")
             if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "get_logs")
-                return {"success": False, "error": error_msg}
+                return {"success": False, "error": "K8s operations provider not available"}
             
-            result = await k8s_ops.get_logs(env=env, pod_name=pod_name, namespace=namespace, tail=tail, **kwargs)
-            
-            if result.get("success", True):
-                await self.log_action("k8s_get_logs_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "pod_name": pod_name,
-                    "tail": tail
-                })
-            
-            return result
+            return await k8s_ops.get_pod_logs(pod_name, env, namespace, tail)
             
         except Exception as e:
-            error_msg = f"K8s get logs controller error: {str(e)}"
-            await self.handle_error(error_msg, "get_logs")
+            error_msg = f"Get logs for {pod_name} error: {str(e)}"
+            await self.handle_error(error_msg, "logs")
             return {"success": False, "error": error_msg}
     
-    async def port_forward(self, resource: str, ports: str, env: str = None, namespace: str = "default", **kwargs) -> Dict[str, Any]:
-        """Start port forwarding with environment safety and background logging"""
-        try:
-            env = env or self.current_env
-            
-            if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "port_forward")
-                return {"success": False, "error": error_msg}
-            
-            if not resource or not ports:
-                error_msg = "Resource and ports are required"
-                await self.handle_error(error_msg, "port_forward")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_port_forward_start", {
-                "env": env, 
-                "namespace": namespace, 
-                "resource": resource,
-                "ports": ports
-            })
-            
-            k8s_ops = self.get_provider("k8s_operations")
-            if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "port_forward")
-                return {"success": False, "error": error_msg}
-            
-            # Use backgrounding and tmp logging as per rules
-            result = await k8s_ops.port_forward(
-                env=env, 
-                resource=resource, 
-                ports=ports, 
-                namespace=namespace, 
-                **kwargs
-            )
-            
-            if result.get("success", True):
-                await self.log_action("k8s_port_forward_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "resource": resource,
-                    "ports": ports
-                })
-                
-                # Inform user about log location
-                await self.broadcast_message({
-                    'type': 'command_output',
-                    'data': {
-                        'output': f'📝 Port forwarding logs available at: /tmp/apex-k8s-portforward-{env}-*.log',
-                        'context': 'k8s_operations'
-                    }
-                })
-            
-            return result
-            
-        except Exception as e:
-            error_msg = f"K8s port forward controller error: {str(e)}"
-            await self.handle_error(error_msg, "port_forward")
-            return {"success": False, "error": error_msg}
-    
-    async def execute_raw_kubectl(self, command: str, env: str = None, namespace: Optional[str] = None, **kwargs) -> Dict[str, Any]:
+    # Raw kubectl execution
+    async def execute_raw_kubectl(self, command: str, env: str = None, namespace: str = None, **kwargs) -> Dict[str, Any]:
         """Execute raw kubectl command with safety validation"""
         try:
             env = env or self.current_env
-            
             if not validate_environment(env):
-                error_msg = f"Invalid environment: {env}. Must be one of: dev, stage, prod"
-                await self.handle_error(error_msg, "raw_kubectl")
-                return {"success": False, "error": error_msg}
+                return {"success": False, "error": f"Invalid environment: {env}"}
             
-            if not command:
-                error_msg = "Command is required"
-                await self.handle_error(error_msg, "raw_kubectl")
-                return {"success": False, "error": error_msg}
-            
-            await self.log_action("k8s_raw_kubectl_start", {
-                "env": env, 
-                "namespace": namespace, 
-                "command": command
+            await self.log_action("execute_raw_kubectl", {
+                "command": command[:100],  # Log first 100 chars for security
+                "env": env,
+                "namespace": namespace
             })
             
             k8s_ops = self.get_provider("k8s_operations")
             if not k8s_ops:
-                error_msg = "K8s operations provider not available"
-                await self.handle_error(error_msg, "raw_kubectl")
-                return {"success": False, "error": error_msg}
+                return {"success": False, "error": "K8s operations provider not available"}
             
-            result = await k8s_ops.execute_kubectl_command(
-                command=command,
-                env=env,
-                namespace=namespace,
-                **kwargs
-            )
-            
-            if result.get("success", True):
-                await self.log_action("k8s_raw_kubectl_success", {
-                    "env": env, 
-                    "namespace": namespace,
-                    "command": command
-                })
-            
-            return result
+            return await k8s_ops.execute_kubectl_command(command, env, namespace)
             
         except Exception as e:
-            error_msg = f"K8s raw kubectl controller error: {str(e)}"
-            await self.handle_error(error_msg, "raw_kubectl")
+            error_msg = f"Execute kubectl command error: {str(e)}"
+            await self.handle_error(error_msg, "kubectl")
             return {"success": False, "error": error_msg}
     
     def set_environment(self, env: str):
         """Update current environment"""
         if validate_environment(env):
             self.current_env = env
-            # Clear context cache when changing environments
-            self.current_context = None
         else:
             raise ValueError(f"Invalid environment: {env}. Must be one of: dev, stage, prod")
+    

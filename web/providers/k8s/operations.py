@@ -407,70 +407,275 @@ class K8sOperations(BaseProvider):
             })
             return {'success': False, 'error': error_msg}
     
+    # Universal resource management methods
+    async def get_resources(self, resource_type: str, env: str, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Universal GET method for any K8s resource type"""
+        try:
+            # Handle namespaces specially (no namespace param)
+            if resource_type == "namespaces":
+                return await self.execute_kubectl_command(
+                    f"get {resource_type} -o json",
+                    env=env,
+                    stream_output=kwargs.get('stream_output', False)
+                )
+            else:
+                return await self.execute_kubectl_command(
+                    f"get {resource_type} -o json",
+                    env=env,
+                    namespace=namespace,
+                    stream_output=kwargs.get('stream_output', False)
+                )
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    async def delete_resource(self, resource_type: str, resource_name: str, env: str, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Delete a specific K8s resource with safety validation"""
+        try:
+            await self.broadcast_message({
+                'type': 'command_output', 
+                'data': {
+                    'output': f'🗑️ [SAFE] Deleting {resource_type}/{resource_name} in {env}/{namespace}',
+                    'context': 'k8s_operations'
+                }
+            })
+            
+            # Handle namespaces specially (no namespace param)
+            if resource_type == "namespaces":
+                return await self.execute_kubectl_command(
+                    f"delete {resource_type} {resource_name}",
+                    env=env,
+                    stream_output=kwargs.get('stream_output', True)
+                )
+            else:
+                return await self.execute_kubectl_command(
+                    f"delete {resource_type} {resource_name}",
+                    env=env,
+                    namespace=namespace,
+                    stream_output=kwargs.get('stream_output', True)
+                )
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    async def patch_resource(self, resource_type: str, resource_name: str, patch_data: Dict[str, Any], env: str, namespace: str = "default", **kwargs) -> Dict[str, Any]:
+        """Patch a K8s resource with JSON patch data"""
+        try:
+            import json
+            patch_json = json.dumps(patch_data)
+            
+            await self.broadcast_message({
+                'type': 'command_output',
+                'data': {
+                    'output': f'🔧 [SAFE] Patching {resource_type}/{resource_name} in {env}/{namespace}',
+                    'context': 'k8s_operations'
+                }
+            })
+            
+            # Handle namespaces specially (no namespace param)
+            if resource_type == "namespaces":
+                return await self.execute_kubectl_command(
+                    f"patch {resource_type} {resource_name} --patch '{patch_json}'",
+                    env=env,
+                    stream_output=kwargs.get('stream_output', True)
+                )
+            else:
+                return await self.execute_kubectl_command(
+                    f"patch {resource_type} {resource_name} --patch '{patch_json}'",
+                    env=env,
+                    namespace=namespace,
+                    stream_output=kwargs.get('stream_output', True)
+                )
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
+    async def get_pod_logs(self, pod_name: str, env: str, namespace: str = "default", tail: int = 100, **kwargs) -> Dict[str, Any]:
+        """Get pod logs with context safety"""
+        return await self.execute_kubectl_command(
+            f"logs {pod_name} --tail={tail}",
+            env=env,
+            namespace=namespace,
+            stream_output=kwargs.get('stream_output', True)
+        )
+    
+    # Context management methods
+    async def list_contexts(self, **kwargs) -> Dict[str, Any]:
+        """List all available kubectl contexts"""
+        try:
+            result = await self.execute_command(
+                'kubectl config get-contexts -o name',
+                env=self.get_env_vars(),
+                stream_output=False
+            )
+            
+            if result['success']:
+                contexts = [ctx.strip() for ctx in result['stdout'].split('\n') if ctx.strip()]
+                
+                # Get current context
+                current_result = await self.execute_command(
+                    'kubectl config current-context',
+                    env=self.get_env_vars(),
+                    stream_output=False
+                )
+                
+                current_context = None
+                if current_result['success']:
+                    current_context = current_result['stdout'].strip()
+                
+                return {
+                    'success': True,
+                    'contexts': contexts,
+                    'current_context': current_context,
+                    'total_contexts': len(contexts)
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': result.get('stderr', 'Failed to list contexts'),
+                    'contexts': []
+                }
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'contexts': []}
+    
+    async def switch_context(self, context: str, **kwargs) -> Dict[str, Any]:
+        """Switch to a specific kubectl context"""
+        try:
+            await self.broadcast_message({
+                'type': 'command_output',
+                'data': {
+                    'output': f'🔄 Switching kubectl context to: {context}',
+                    'context': 'k8s_operations'
+                }
+            })
+            
+            result = await self.execute_command(
+                f'kubectl config use-context {context}',
+                env=self.get_env_vars(),
+                stream_output=kwargs.get('stream_output', True)
+            )
+            
+            if result['success']:
+                # Verify the switch worked
+                verify_result = await self.execute_command(
+                    'kubectl config current-context',
+                    env=self.get_env_vars(),
+                    stream_output=False
+                )
+                
+                if verify_result['success'] and verify_result['stdout'].strip() == context:
+                    await self.broadcast_message({
+                        'type': 'k8s_context_switched',
+                        'data': {
+                            'new_context': context,
+                            'message': f'✅ Successfully switched to context: {context}'
+                        }
+                    })
+                    
+                    # Clear cache
+                    self._current_context_cache = None
+                    
+                    return {
+                        'success': True,
+                        'context': context,
+                        'message': f'Successfully switched to context: {context}'
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': f'Context switch appeared successful but verification failed'
+                    }
+            else:
+                return result
+                
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+    
     async def _get_expected_context_pattern(self, env: str) -> Dict[str, Any]:
         """Get expected kubectl context pattern for environment"""
         try:
+            # Get GCP project for environment
+            project = get_gcp_project_for_env(env)
+            
+            # Get cluster config from GCP configuration
             gcp_config = self.config_loader.get_gcp_config()
             project_config = gcp_config.get('projects', {}).get(env, {})
             
             cluster = project_config.get('cluster')
-            project = get_gcp_project_for_env(env)
+            region = project_config.get('region')
             
-            if not cluster or not project:
-                error_msg = f"Missing cluster or project config for {env}"
-                return {'success': False, 'error': error_msg}
+            if not cluster or not region:
+                return {
+                    'success': False,
+                    'error': f'Missing cluster or region config for {env}'
+                }
             
-            # GKE context pattern: gke_{project}_{region}_{cluster}
-            pattern = f"gke_{project}"
+            # Build expected context pattern (GKE format)
+            expected_pattern = f'{project}_{region}_{cluster}'
             
             return {
                 'success': True,
-                'pattern': pattern,
+                'pattern': expected_pattern,
+                'project': project,
                 'cluster': cluster,
-                'project': project
+                'region': region
             }
             
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {
+                'success': False,
+                'error': f'Failed to get expected context pattern: {str(e)}'
+            }
     
     async def _verify_context(self, env: str) -> Dict[str, Any]:
-        """Verify kubectl context matches expected environment"""
+        """Verify that current context matches expected environment"""
         try:
-            context_result = await self.execute_command(
+            current_result = await self.execute_command(
                 'kubectl config current-context',
                 env=self.get_env_vars(),
                 stream_output=False
             )
             
-            if not context_result['success']:
-                return {'success': False, 'error': 'Could not get current context'}
+            if not current_result['success']:
+                return {
+                    'success': False,
+                    'error': 'No current kubectl context set'
+                }
             
-            current_context = context_result['stdout'].strip()
-            expected_pattern = await self._get_expected_context_pattern(env)
+            current_context = current_result['stdout'].strip()
             
-            if not expected_pattern['success']:
-                return expected_pattern
+            # Get expected pattern
+            expected = await self._get_expected_context_pattern(env)
+            if not expected['success']:
+                return expected
             
-            if expected_pattern['pattern'] in current_context:
+            # Simple pattern matching (more flexible than exact match)
+            if expected['project'] in current_context and expected['cluster'] in current_context:
                 return {
                     'success': True,
                     'context': current_context,
-                    'matches_env': env
+                    'verified': True
                 }
             else:
                 return {
                     'success': False,
-                    'error': f"Context '{current_context}' does not match {env} environment",
-                    'context': current_context
+                    'error': f'Current context "{current_context}" does not match {env} environment',
+                    'current_context': current_context,
+                    'expected_pattern': expected['pattern']
                 }
                 
         except Exception as e:
-            return {'success': False, 'error': str(e)}
+            return {
+                'success': False,
+                'error': f'Context verification failed: {str(e)}'
+            }
     
     def get_env_vars(self) -> Dict[str, str]:
         """Get K8s-specific environment variables"""
-        return {
+        env_vars = {
             'HOME': os.path.expanduser('~'),
             'KUBECONFIG': os.path.expanduser('~/.kube/config'),
-            'CLOUDSDK_CORE_DISABLE_PROMPTS': '1'
+            'KUBECTL_TIMEOUT': '60s'
         }
+        return env_vars

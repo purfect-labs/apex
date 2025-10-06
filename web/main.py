@@ -181,7 +181,7 @@ class APEXMainApp:
             try:
                 aws_controller = self.controller_registry.get_aws_controller()
                 if aws_controller:
-                    return await aws_controller.get_auth_status()
+                    return await aws_controller.get_status()
                 else:
                     return {"success": False, "authenticated": False, "error": "AWS controller not available"}
             except Exception as e:
@@ -193,7 +193,7 @@ class APEXMainApp:
             try:
                 gcp_controller = self.controller_registry.get_gcp_controller()
                 if gcp_controller:
-                    return await gcp_controller.get_auth_status()
+                    return await gcp_controller.get_status()
                 else:
                     return {"success": False, "authenticated": False, "error": "GCP controller not available"}
             except Exception as e:
@@ -1323,6 +1323,87 @@ Please implement the fixes directly in the codebase and provide a summary of cha
                     return {"success": False, "error": "GCP controller not available"}
             except Exception as e:
                 return {"success": False, "error": str(e)}
+        
+        class GCPCommandRequest(BaseModel):
+            command: str  # gcloud command to execute
+            project: Optional[str] = None
+            env: Optional[str] = "dev"
+        
+        @self.app.post("/api/gcp/execute")
+        async def gcp_execute_command(request: GCPCommandRequest, background_tasks: BackgroundTasks):
+            """Execute arbitrary gcloud command"""
+            try:
+                gcp_controller = self.controller_registry.get_gcp_controller()
+                if gcp_controller:
+                    background_tasks.add_task(
+                        gcp_controller.execute_command,
+                        command=request.command,
+                        project=request.project,
+                        env=request.env
+                    )
+                    return {
+                        "success": True, 
+                        "message": f"GCP command execution started: {request.command}"
+                    }
+                else:
+                    return {"success": False, "error": "GCP controller not available"}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
+        @self.app.get("/api/gcp/auth")
+        async def gcp_auth_list():
+            """List GCP authenticated accounts"""
+            try:
+                gcp_controller = self.controller_registry.get_gcp_controller()
+                if gcp_controller:
+                    return await gcp_controller.list_auth_accounts()
+                else:
+                    return {"success": False, "error": "GCP controller not available"}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
+        @self.app.post("/api/gcp/switch-project")
+        async def gcp_switch_project(request: GCPRequest, background_tasks: BackgroundTasks):
+            """Switch to a specific GCP project"""
+            try:
+                gcp_controller = self.controller_registry.get_gcp_controller()
+                if gcp_controller:
+                    background_tasks.add_task(
+                        gcp_controller.switch_project,
+                        project=request.project or request.env
+                    )
+                    return {
+                        "success": True, 
+                        "message": f"Switching to GCP project: {request.project or request.env}"
+                    }
+                else:
+                    return {"success": False, "error": "GCP controller not available"}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
+        @self.app.get("/api/gcp/config")
+        async def gcp_get_config():
+            """Get current GCP configuration"""
+            try:
+                gcp_controller = self.controller_registry.get_gcp_controller()
+                if gcp_controller:
+                    return await gcp_controller.get_config()
+                else:
+                    return {"success": False, "error": "GCP controller not available"}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
+        @self.app.post("/api/gcp/auth/test")
+        async def gcp_test_auth(request: GCPRequest):
+            """Test GCP authentication for specific project"""
+            try:
+                gcp_controller = self.controller_registry.get_gcp_controller()
+                if gcp_controller:
+                    return await gcp_controller.test_authentication(project=request.project, env=request.env)
+                else:
+                    return {"success": False, "authenticated": False, "error": "GCP controller not available"}
+            except Exception as e:
+                return {"success": False, "authenticated": False, "error": str(e)}
         
         # Add command execution endpoint that templates expect
         @self.app.post("/execute-command")

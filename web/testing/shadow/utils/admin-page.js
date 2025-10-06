@@ -4,6 +4,7 @@
 class AdminPage {
     constructor(page) {
         this.page = page;
+        this.isInitialized = false; // Track if admin page is already loaded
         
         // Navigation selectors
         this.navItems = {
@@ -169,11 +170,27 @@ class AdminPage {
     
     // Navigation methods
     async navigateToAdminPage() {
+        // Skip navigation if already initialized and on admin page
+        if (this.isInitialized) {
+            try {
+                const currentUrl = this.page.url();
+                if (currentUrl.includes('/static/admin.html')) {
+                    return; // Already on admin page, skip navigation
+                }
+            } catch {
+                // If there's an error checking URL, proceed with navigation
+            }
+        }
+        
         await this.page.goto('http://localhost:8000/static/admin.html');
         await this.page.waitForLoadState('networkidle');
         await this.waitForAdminInitialization();
-        // Load dynamic profiles after page loads
-        await this.loadAvailableProfiles();
+        
+        // Load dynamic profiles after page loads (only once)
+        if (!this.isInitialized) {
+            await this.loadAvailableProfiles();
+            this.isInitialized = true;
+        }
     }
 
     async waitForAdminInitialization() {
@@ -345,6 +362,51 @@ class AdminPage {
             resultSelector,
             { timeout }
         );
+    }
+
+    // Enhanced reporting and screenshot methods
+    async captureScreenshot(testName, stepName = 'action') {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `shadow-test-${testName}-${stepName}-${timestamp}.png`;
+        
+        const screenshotPath = `shadow-reports/screenshots/${filename}`;
+        await this.page.screenshot({ 
+            path: screenshotPath,
+            fullPage: true 
+        });
+        
+        return screenshotPath;
+    }
+
+    async captureTestEvidence(testName, capability, result) {
+        const evidence = {
+            testName,
+            capability,
+            timestamp: new Date().toISOString(),
+            result: result.substring(0, 500), // Truncate for storage
+            testType: 'shadow'
+        };
+        
+        // Capture screenshot
+        const screenshotPath = await this.captureScreenshot(testName, capability);
+        evidence.screenshot = screenshotPath;
+        
+        // Log evidence
+        console.log(`📸 Test Evidence Captured: ${JSON.stringify(evidence, null, 2)}`);
+        
+        return evidence;
+    }
+
+    async waitWithScreenshot(testName, waitDescription, waitFunction) {
+        console.log(`⏳ ${waitDescription}`);
+        
+        try {
+            await waitFunction();
+            await this.captureScreenshot(testName, 'success');
+        } catch (error) {
+            await this.captureScreenshot(testName, 'failure');
+            throw error;
+        }
     }
 }
 

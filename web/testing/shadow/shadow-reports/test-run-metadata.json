@@ -1,0 +1,12 @@
+{
+  "testRunId": "shadow-run-1759718072028",
+  "startTime": "2025-10-06T02:34:32.028Z",
+  "environment": {
+    "node": "v24.8.0",
+    "platform": "darwin",
+    "pwd": "/Users/shawn_meredith/code/pets/apex/web/testing/shadow"
+  },
+  "testType": "shadow",
+  "endTime": "2025-10-06T02:41:28.639Z",
+  "duration": 416611
+}

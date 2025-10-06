@@ -59,12 +59,17 @@ test.describe('AWS Provider Shadow Tests', () => {
             // Should contain valid JSON response or error message
             expect(result).toBeTruthy();
             
-            if (result.includes('UserId') || result.includes('Account') || result.includes('Arn')) {
+            if (result.includes('UserId') || result.includes('Account') || result.includes('Arn') || 
+                result.includes('account') || result.includes('user') || result.includes('arn') ||
+                (result.includes('success') && result.includes('232143722969'))) {
                 console.log('✅ AWS identity capability validated with real data');
+                expect(result).toMatch(/(UserId|Account|Arn|account|user|arn|success.*232143722969)/i);
             } else if (result.includes('error') || result.includes('Error')) {
                 console.log(`⚠️  AWS identity capability error: ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|Error)/i);
             } else {
-                console.log('ℹ️  AWS identity capability returned unexpected format');
+                console.log(`❌ AWS identity capability returned unexpected format: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS identity result format: ${result}`);
             }
         });
 
@@ -77,8 +82,10 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             if (result.includes('dev') || result.includes('stage') || result.includes('prod')) {
                 console.log('✅ AWS profiles capability validated with real profiles');
+                expect(result).toMatch(/(dev|stage|prod)/i);
             } else {
-                console.log(`ℹ️  AWS profiles result: ${result.substring(0, 100)}...`);
+                console.log(`❌ AWS profiles unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS profiles result format: ${result}`);
             }
         });
 
@@ -91,8 +98,10 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             if (result.includes('us-east-1') || result.includes('us-west-2') || result.includes('region')) {
                 console.log('✅ AWS regions capability validated with real regions');
+                expect(result).toMatch(/(us-east-1|us-west-2|region)/i);
             } else {
-                console.log(`ℹ️  AWS regions result: ${result.substring(0, 100)}...`);
+                console.log(`❌ AWS regions unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS regions result format: ${result}`);
             }
         });
 
@@ -105,8 +114,10 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             if (result.includes('success') || result.includes('switched') || result.includes('dev')) {
                 console.log('✅ AWS profile switching capability validated');
+                expect(result).toMatch(/(success|switched|dev)/i);
             } else {
-                console.log(`ℹ️  AWS profile switching result: ${result.substring(0, 100)}...`);
+                console.log(`❌ AWS profile switching unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS profile switching result format: ${result}`);
             }
         });
     });
@@ -126,13 +137,17 @@ test.describe('AWS Provider Shadow Tests', () => {
                 if (result.includes('232143722969')) {
                     console.log('✅ Confirmed DEV account (232143722969) authentication');
                 }
+            } else if (result.includes('AWS command execution started') || (result.includes('success') && result.includes('aws sts'))) {
+                console.log('✅ AWS STS command started successfully');
+                expect(result).toMatch(/(AWS command execution started|success.*aws sts)/i);
             } else if (result.includes('error') || result.includes('Error')) {
                 console.log(`⚠️  AWS STS command failed: ${result.substring(0, 200)}...`);
                 
                 // Still pass test but log the issue for investigation
                 expect(result).toContain('error');
             } else {
-                console.log(`ℹ️  AWS STS unexpected result format: ${result.substring(0, 100)}...`);
+                console.log(`❌ AWS STS unexpected result format: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS STS result format: ${result}`);
             }
         });
 
@@ -145,10 +160,16 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             if (result.includes('Instances') || result.includes('Reservations')) {
                 console.log('✅ AWS EC2 command executed successfully');
+                expect(result).toMatch(/(Instances|Reservations)/i);
+            } else if (result.includes('AWS command execution started') || (result.includes('success') && result.includes('aws ec2'))) {
+                console.log('✅ AWS EC2 command started successfully');
+                expect(result).toMatch(/(AWS command execution started|success.*aws ec2)/i);
             } else if (result.includes('error') || result.includes('UnauthorizedOperation')) {
                 console.log(`⚠️  AWS EC2 command permission issue (expected): ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|UnauthorizedOperation)/i);
             } else {
-                console.log(`ℹ️  AWS EC2 result: ${result.substring(0, 100)}...`);
+                console.log(`❌ AWS EC2 unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS EC2 result format: ${result}`);
             }
         });
 
@@ -161,10 +182,16 @@ test.describe('AWS Provider Shadow Tests', () => {
             
             if (result.includes('s3://') || result.includes('bucket')) {
                 console.log('✅ AWS S3 command executed successfully with bucket data');
+                expect(result).toMatch(/(s3:\/\/|bucket)/i);
+            } else if (result.includes('AWS command execution started') || (result.includes('success') && result.includes('aws s3'))) {
+                console.log('✅ AWS S3 command started successfully');
+                expect(result).toMatch(/(AWS command execution started|success.*aws s3)/i);
             } else if (result.includes('error') || result.includes('AccessDenied')) {
                 console.log(`⚠️  AWS S3 command access issue (expected): ${result.substring(0, 100)}...`);
+                expect(result).toMatch(/(error|AccessDenied)/i);
             } else {
-                console.log(`ℹ️  AWS S3 result: ${result.substring(0, 100)}...`);
+                console.log(`❌ AWS S3 unexpected result: ${result.substring(0, 100)}...`);
+                throw new Error(`Unexpected AWS S3 result format: ${result}`);
             }
         });
 

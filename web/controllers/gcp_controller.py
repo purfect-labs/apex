@@ -124,7 +124,7 @@ class GCPController(BaseController):
             # Check authentication
             gcp_auth = self.get_provider("gcp_auth")
             if gcp_auth:
-                auth_status = await gcp_auth.get_auth_status()
+                auth_status = await gcp_auth.get_status()
                 if not auth_status.get("authenticated", False):
                     error_msg = f"GCP project {project} not authenticated"
                     await self.handle_error(error_msg, "compute")
@@ -178,7 +178,7 @@ class GCPController(BaseController):
             # Check authentication
             gcp_auth = self.get_provider("gcp_auth")
             if gcp_auth:
-                auth_status = await gcp_auth.get_auth_status()
+                auth_status = await gcp_auth.get_status()
                 if not auth_status.get("authenticated", False):
                     error_msg = f"GCP project {project} not authenticated"
                     await self.handle_error(error_msg, "functions")
@@ -232,7 +232,7 @@ class GCPController(BaseController):
             # Check authentication
             gcp_auth = self.get_provider("gcp_auth")
             if gcp_auth:
-                auth_status = await gcp_auth.get_auth_status()
+                auth_status = await gcp_auth.get_status()
                 if not auth_status.get("authenticated", False):
                     await self.broadcast_message({
                         'type': 'warning',
@@ -738,3 +738,229 @@ class GCPController(BaseController):
             error_msg = f"kubectl auth controller error: {str(e)}"
             await self.handle_error(error_msg, "kubectl_auth")
             return {"success": False, "error": error_msg}
+    
+    async def execute_command(self, command: str, project: str = None, env: str = None, **kwargs) -> Dict[str, Any]:
+        """Execute arbitrary gcloud command"""
+        try:
+            env = env or self.current_env
+            project = project or self.current_project
+            
+            if not project and env:
+                try:
+                    project = get_gcp_project_for_env(env)
+                except ValueError as e:
+                    error_msg = str(e)
+                    await self.handle_error(error_msg, "execute_command")
+                    return {"success": False, "error": error_msg}
+            
+            await self.log_action("execute_command_start", {"command": command, "project": project, "env": env})
+            
+            # Get GCP provider
+            gcp_provider = self.get_provider("gcp_auth")
+            if not gcp_provider:
+                error_msg = "GCP provider not available"
+                await self.handle_error(error_msg, "execute_command")
+                return {"success": False, "error": error_msg}
+            
+            # Execute command through provider
+            result = await gcp_provider.execute_command(command)
+            
+            await self.broadcast_message({
+                'type': 'command_output',
+                'data': {
+                    'output': f'GCP command execution started: {command}',
+                    'context': 'gcp_execute',
+                    'command': command,
+                    'project': project
+                }
+            })
+            
+            await self.log_action("execute_command_complete", {
+                "command": command,
+                "project": project,
+                "success": result.get("success", True)
+            })
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"GCP command execution controller error: {str(e)}"
+            await self.handle_error(error_msg, "execute_command")
+            return {"success": False, "error": error_msg}
+    
+    async def list_auth_accounts(self) -> Dict[str, Any]:
+        """List GCP authenticated accounts using gcloud auth list"""
+        try:
+            await self.log_action("list_auth_accounts_start")
+            
+            gcp_auth = self.get_provider("gcp_auth")
+            if not gcp_auth:
+                error_msg = "GCP auth provider not available"
+                await self.handle_error(error_msg, "list_auth_accounts")
+                return {"success": False, "error": error_msg}
+            
+            # Execute gcloud auth list command
+            result = await gcp_auth.execute_command("gcloud auth list --format=json")
+            
+            if result.get("success", True) and result.get("stdout"):
+                try:
+                    import json
+                    accounts = json.loads(result["stdout"])
+                    return {
+                        "success": True,
+                        "accounts": accounts,
+                        "active_account": next((acc["account"] for acc in accounts if acc.get("status") == "ACTIVE"), None)
+                    }
+                except json.JSONDecodeError:
+                    # Fallback to raw output
+                    return {
+                        "success": True,
+                        "raw_output": result["stdout"],
+                        "message": "Auth accounts retrieved (raw format)"
+                    }
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"GCP auth list controller error: {str(e)}"
+            await self.handle_error(error_msg, "list_auth_accounts")
+            return {"success": False, "error": error_msg}
+    
+    async def switch_project(self, project: str, **kwargs) -> Dict[str, Any]:
+        """Switch to a specific GCP project using gcloud config"""
+        try:
+            if not project:
+                error_msg = "Project name is required"
+                await self.handle_error(error_msg, "switch_project")
+                return {"success": False, "error": error_msg}
+            
+            await self.log_action("switch_project_start", {"project": project})
+            
+            gcp_auth = self.get_provider("gcp_auth")
+            if not gcp_auth:
+                error_msg = "GCP auth provider not available"
+                await self.handle_error(error_msg, "switch_project")
+                return {"success": False, "error": error_msg}
+            
+            # Execute gcloud config set project
+            command = f"gcloud config set project {project}"
+            result = await gcp_auth.execute_command(command)
+            
+            if result.get("success", True):
+                self.current_project = project
+                await self.broadcast_message({
+                    'type': 'command_output',
+                    'data': {
+                        'output': f'Switched to GCP project: {project}',
+                        'context': 'gcp_switch_project'
+                    }
+                })
+                
+                await self.log_action("switch_project_success", {"project": project})
+                return {
+                    "success": True,
+                    "message": f"Switched to project {project}",
+                    "current_project": project
+                }
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"GCP project switch controller error: {str(e)}"
+            await self.handle_error(error_msg, "switch_project")
+            return {"success": False, "error": error_msg}
+    
+    async def get_config(self) -> Dict[str, Any]:
+        """Get current GCP configuration using gcloud config list"""
+        try:
+            await self.log_action("get_config_start")
+            
+            gcp_auth = self.get_provider("gcp_auth")
+            if not gcp_auth:
+                error_msg = "GCP auth provider not available"
+                await self.handle_error(error_msg, "get_config")
+                return {"success": False, "error": error_msg}
+            
+            # Get gcloud configuration
+            result = await gcp_auth.execute_command("gcloud config list --format=json")
+            
+            if result.get("success", True) and result.get("stdout"):
+                try:
+                    import json
+                    config_data = json.loads(result["stdout"])
+                    return {
+                        "success": True,
+                        "config": config_data,
+                        "current_project": config_data.get("core", {}).get("project"),
+                        "account": config_data.get("core", {}).get("account")
+                    }
+                except json.JSONDecodeError:
+                    return {
+                        "success": True,
+                        "raw_config": result["stdout"],
+                        "message": "Config retrieved (raw format)"
+                    }
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"GCP config get controller error: {str(e)}"
+            await self.handle_error(error_msg, "get_config")
+            return {"success": False, "error": error_msg}
+    
+    async def test_authentication(self, project: str = None, env: str = None, **kwargs) -> Dict[str, Any]:
+        """Test GCP authentication for specific project/environment"""
+        try:
+            env = env or self.current_env
+            
+            if project:
+                test_project = project
+            elif env:
+                try:
+                    test_project = get_gcp_project_for_env(env)
+                except ValueError as e:
+                    return {"success": False, "authenticated": False, "error": str(e)}
+            else:
+                test_project = self.current_project
+            
+            await self.log_action("test_authentication_start", {"project": test_project, "env": env})
+            
+            gcp_auth = self.get_provider("gcp_auth")
+            if not gcp_auth:
+                return {"success": False, "authenticated": False, "error": "GCP auth provider not available"}
+            
+            # Test authentication by running a simple gcloud command
+            test_command = "gcloud auth list --filter=status:ACTIVE --format='value(account)'"
+            result = await gcp_auth.execute_command(test_command)
+            
+            if result.get("success", True) and result.get("stdout", "").strip():
+                active_account = result["stdout"].strip()
+                
+                # Test project access if specified
+                if test_project:
+                    project_test = await gcp_auth.execute_command(f"gcloud config set project {test_project}")
+                    if not project_test.get("success", True):
+                        return {
+                            "success": False,
+                            "authenticated": False,
+                            "error": f"Cannot access project {test_project}"
+                        }
+                
+                return {
+                    "success": True,
+                    "authenticated": True,
+                    "active_account": active_account,
+                    "project": test_project,
+                    "env": env
+                }
+            else:
+                return {
+                    "success": False,
+                    "authenticated": False,
+                    "error": "No active GCP authentication found"
+                }
+            
+        except Exception as e:
+            error_msg = f"GCP auth test controller error: {str(e)}"
+            await self.handle_error(error_msg, "test_authentication")
+            return {"success": False, "authenticated": False, "error": error_msg}

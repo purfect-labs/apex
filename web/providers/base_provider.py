@@ -53,7 +53,7 @@ class BaseProvider(ABC):
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
                 env=exec_env,
-                cwd='/Users/shawn_meredith/code/github/apex'
+                cwd=os.getcwd()
             )
             
             stdout_data = []
